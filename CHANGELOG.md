@@ -5,6 +5,20 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2026-10-26
+
+### Added
+- **Single / Bilingual Modes for Live Transcription & AI Copilot**:
+  - Added live transcription mode switcher (`[Bilingual | Single]`) across both the floating Subtitles HUD and the Dashboard dialogue stream. Bilingual mode displays both target translation and original source speech; Single mode displays clean translated text only.
+  - Added AI Copilot mode switcher (`[Bilingual | Single]`) in `CopilotCard`. Bilingual mode displays both primary answer and secondary/English answer with clear labels, plus question translation; Single mode displays concise primary response only.
+- **Keywords Highlighting in AI Copilot**:
+  - Implemented `HighlightText` component that highlights `**bold concepts**` as styled pill badges and scans for domain keywords and technical metrics.
+  - Added keyword pill tag list (`suggestion.keywords`) rendered at the top of the Copilot card for quick architectural scanning (e.g., *Database-per-Service*, *Expand and Contract*, *Transactional Outbox*, *Zero Downtime*).
+- **Selectable, Copyable, and Editable Live Transcription**:
+  - Subtitle text is now fully selectable with mouse drag (`select-text cursor-text`) in both Subtitles HUD and Dashboard.
+  - Added instant one-click Copy button with visual checkmark feedback on each subtitle item.
+  - Added inline Editing with Save (`Check`) and Cancel (`X`) buttons on both Subtitles HUD and Dashboard, persisting edits to SQLite via backend command `update_transcript` and broadcasting real-time updates via `subtitle:updated`.
+
 ## [0.1.6] - 2026-10-26
 
 ### Fixed

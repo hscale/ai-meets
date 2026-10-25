@@ -74,21 +74,23 @@
 - **Multi-Lingual Question Detector**:
   - Regex-based heuristic detector covering English, Vietnamese, Japanese, Chinese, and Korean interrogative patterns.
   - Detects explicit interrogatives (5W1H), auxiliary verb questions (*can you*, *could you*, *have you*), and conversational question patterns.
-- **Contextual Knowledge Grounding**:
+- **Contextual Knowledge Grounding & Keyword Highlighting**:
   - Retrieves active Knowledge Profile (Resume/CV, Product Battlecards, Meeting Agenda).
   - Rolling conversation buffer (last 10–15 turns).
-- **Asynchronous Suggestion Dispatch & Smart Fallbacks**:
-  - Dispatches non-blocking query to the selected LLM.
-  - On LLM failure (e.g. unreachable local llama-server or network error), executes `generate_smart_fallback` to construct context-grounded architectural talking points, localized responses (EN, VI, JA, ZH), and status diagnostics without dropping the event.
-  - Emits real-time `copilot:suggestion` payload containing structured bullet-point talking points and a concise suggested answer to both HUD and Dashboard.
+  - Extracts and returns `keywords` array alongside `**bold concept**` markdown markup, rendered via `HighlightText` component into styled badges and tag pills.
+- **Asynchronous Suggestion Dispatch & Dual-Language Modes**:
+  - Dispatches non-blocking query to the selected LLM or generates domain-grounded fallbacks (`generate_smart_fallback`).
+  - Supports **Bilingual Mode** (primary answer + secondary English answer + translated question) and **Single Mode** (primary answer only).
+  - Emits real-time `copilot:suggestion` payload containing structured bullet-point talking points, keywords, and concise suggested answers to both HUD and Dashboard.
   - Persists question records and suggested answers to SQLite.
 
 ### 5. Multi-Window Presentation (`src-tauri/src/overlay/` & `src-tauri/src/compose/`)
-- **Live Subtitles HUD**:
+- **Live Subtitles HUD & Interactivity**:
   - Floating transparent window with true non-rectangular background transparency.
   - Tightly bounded frame (760x110 default, minHeight 60) with `m-0 p-0` outer container eliminating transparent dead-zones that intercept mouse clicks.
   - Native dynamic height resizing (`commands::resize_overlay` + `ResizeObserver`) synchronizing physical window height with visual card height when the Copilot drawer expands (~230px) or collapses (~110px).
-  - Avoids full-window native vibrancy/blur (e.g. `NSVisualEffectMaterial::HudWindow`) to prevent an opaque rectangular bounding box around floating pills.
+  - Single/Bilingual mode toggle (`[BI | SINGLE]`) controlling dual-language vs single translation display.
+  - Selectable text (`select-text cursor-text`), quick one-click copy, and in-place inline editing with instant SQLite persistence (`commands::update_transcript`).
   - Applies CSS glassmorphism (`backdrop-filter: blur()`, `rounded-2xl`, translucent borders) scoped directly to the subtitle card and copilot drawer.
   - Single-click toggle from Dashboard or Tray menu (`toggle_overlay_visible`) and click-through lock toggle (`set_ignore_cursor_events`).
 - **Type & Translate (Compose)**:

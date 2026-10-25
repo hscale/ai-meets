@@ -165,6 +165,15 @@ impl Database {
         Ok(())
     }
 
+    pub fn update_transcript_text(&self, id: &str, src_text: &str, tgt_text: &str) -> Result<()> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE transcripts SET src_text = ?1, tgt_text = ?2 WHERE id = ?3",
+            params![src_text, tgt_text, id],
+        )?;
+        Ok(())
+    }
+
     pub fn list_sessions(&self) -> Result<Vec<SessionRecord>> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare("SELECT id, title, started_at, ended_at, src_lang, tgt_lang, audio_source FROM sessions ORDER BY started_at DESC")?;

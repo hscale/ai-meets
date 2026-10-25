@@ -29,6 +29,8 @@ interface AppState {
   audioLevel: number;
   overlayLocked: boolean;
   overlayVisible: boolean;
+  transcriptionMode: "bilingual" | "single";
+  copilotMode: "bilingual" | "single";
 
   // Actions
   init: () => Promise<void>;
@@ -36,6 +38,9 @@ interface AppState {
   stopSession: () => Promise<void>;
   setSelectedAudioSource: (id: string) => void;
   setLanguages: (src: string, tgt: string) => void;
+  setTranscriptionMode: (mode: "bilingual" | "single") => void;
+  setCopilotMode: (mode: "bilingual" | "single") => void;
+  updateSubtitle: (id: string, srcText: string, tgtText: string) => Promise<void>;
   simulateSpeech: (speaker: string, text: string) => Promise<void>;
   askCopilotManual: (question: string) => Promise<void>;
   setOverlayLocked: (locked: boolean) => Promise<void>;
@@ -76,6 +81,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   audioLevel: 0,
   overlayLocked: false,
   overlayVisible: false,
+  transcriptionMode: "bilingual",
+  copilotMode: "bilingual",
 
   init: async () => {
     try {
@@ -128,6 +135,15 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({ overlayVisible: event.payload });
       });
 
+      await listen<{ id: string; src_text: string; tgt_text: string }>("subtitle:updated", (event) => {
+        const { id, src_text, tgt_text } = event.payload;
+        set((state) => ({
+          subtitles: state.subtitles.map((sub) =>
+            sub.id === id ? { ...sub, src_text, tgt_text, is_edited: true } : sub
+          ),
+        }));
+      });
+
       await listen("session:stopped", () => {
         set((state) => ({
           status: { ...state.status, is_recording: false, session_id: null },
@@ -163,6 +179,21 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setSelectedAudioSource: (id: string) => set({ selectedAudioSource: id }),
   setLanguages: (src: string, tgt: string) => set({ srcLang: src, tgtLang: tgt }),
+  setTranscriptionMode: (mode: "bilingual" | "single") => set({ transcriptionMode: mode }),
+  setCopilotMode: (mode: "bilingual" | "single") => set({ copilotMode: mode }),
+
+  updateSubtitle: async (id: string, srcText: string, tgtText: string) => {
+    try {
+      await invoke("update_transcript", { id, srcText, tgtText });
+      set((state) => ({
+        subtitles: state.subtitles.map((sub) =>
+          sub.id === id ? { ...sub, src_text: srcText, tgt_text: tgtText, is_edited: true } : sub
+        ),
+      }));
+    } catch (e) {
+      console.error("Failed to update transcript:", e);
+    }
+  },
 
   simulateSpeech: async (speaker: string, text: string) => {
     await invoke("process_speech_chunk", { speaker, srcText: text });

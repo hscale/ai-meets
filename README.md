@@ -12,6 +12,8 @@ Reverse-engineered and elevated from `AI Translator` (`aitranslator.vn`), AI Mee
 - **System Audio Capture**: Captures incoming meeting dialogue from Zoom, Google Meet, Microsoft Teams, Slack Huddles, and Web browsers (using **ScreenCaptureKit** on macOS 14.2+ and **WASAPI loopback** on Windows).
 - **Microphone Capture**: Independent microphone audio input with noise gate, RMS normalization, and resampling to 16kHz mono float32.
 - **Bilingual Subtitles**: Simultaneous display of original spoken utterance and real-time translation across English, Vietnamese, Japanese, Chinese, and Korean.
+- **Hybrid AI & OpenAI Compatible Backends**: Choose 100% private zero-cost local models (llama-server / Ollama), frontier cloud APIs (OpenAI, Claude, Gemini), or any **OpenAI API Compatible** provider (DeepSeek, Groq, OpenRouter, Together AI, Mistral, SiliconFlow).
+- **Multi-Provider Comparison & Benchmark**: Benchmark round-trip inference latency (ms) and translation fidelity side-by-side across all configured AI backends in real-time.
 
 ### 2. Live Floating HUD & Click-Through Subtitles
 - **Vibrant Transparent Overlay**: Native floating subtitle bar (`tauri-nspanel` on macOS / DWM acrylic on Windows) that stays on top across full-screen desktops and spaces.

@@ -5,6 +5,23 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-10-26
+
+### Added
+- **OpenAI API Compatible Provider (`openai_compatible`)**:
+  - Implemented generic OpenAI-compatible chat completion client supporting custom API Base URLs, Bearer authentication tokens, and arbitrary model names.
+  - Enabled one-click presets for popular inference providers: **DeepSeek** (`deepseek-chat`), **Groq** (`llama-3.3-70b-versatile`), **OpenRouter** (`meta-llama/llama-3.3-70b-instruct`), **Together AI** (`meta-llama/Llama-3.3-70B-Instruct-Turbo`), **Mistral** (`mistral-small-latest`), **SiliconFlow** (`deepseek-ai/DeepSeek-V3`), and **Local vLLM / Ollama** (`qwen2.5:7b`).
+  - Added robust endpoint normalization (`normalize_openai_endpoint`) automatically handling trailing slashes, root base URLs, and pre-existing `/chat/completions` paths.
+  - Wired OpenAI-compatible model dispatch into both real-time meeting translation and the AI Question Copilot suggester.
+- **Provider Comparison & Benchmarking Tool**:
+  - Added Tauri backend command `test_provider(client_config, sample_text, src_lang, tgt_lang)` executing live isolated inference, measuring round-trip latency in milliseconds, and returning sample translations or diagnostics.
+  - Added "Test Active Provider" button with animated latency badge (`⚡ X ms`) and status alert banner in Settings.
+  - Added "Multi-Provider Comparison & Benchmark" card evaluating latency and translation fidelity side-by-side across all configured AI backends in a ranked leaderboard.
+
+### Changed
+- Extended `TranslationConfig` schema with `custom_endpoint` and `custom_api_key`.
+- Updated unit test suite in `translation::engine` and `commands` verifying endpoint normalization and result serialization.
+
 ## [0.1.3] - 2026-10-26
 
 ### Fixed

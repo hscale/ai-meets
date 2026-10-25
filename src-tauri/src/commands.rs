@@ -464,3 +464,72 @@ pub async fn update_settings(state: State<'_, AppState>, settings: TranslationCo
     state.copilot_suggester.write().await.update_config(settings);
     Ok(())
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProviderTestResult {
+    pub provider: String,
+    pub model: String,
+    pub latency_ms: u64,
+    pub translation: String,
+    pub success: bool,
+    pub error: Option<String>,
+}
+
+#[tauri::command]
+pub async fn test_provider(
+    client_config: TranslationConfig,
+    sample_text: String,
+    src_lang: String,
+    tgt_lang: String,
+) -> Result<ProviderTestResult, String> {
+    let start = std::time::Instant::now();
+    let engine = crate::translation::TranslationEngine::new(client_config.clone());
+    let res = engine.translate(&sample_text, &src_lang, &tgt_lang, &[]).await;
+    let latency_ms = start.elapsed().as_millis() as u64;
+
+    match res {
+        Ok(trans) => Ok(ProviderTestResult {
+            provider: client_config.provider,
+            model: client_config.model_name,
+            latency_ms,
+            translation: trans,
+            success: true,
+            error: None,
+        }),
+        Err(e) => Ok(ProviderTestResult {
+            provider: client_config.provider,
+            model: client_config.model_name,
+            latency_ms,
+            translation: String::new(),
+            success: false,
+            error: Some(e.to_string()),
+        }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_provider_test_result_serde() {
+        let result = ProviderTestResult {
+            provider: "openai_compatible".to_string(),
+            model: "deepseek-chat".to_string(),
+            latency_ms: 245,
+            translation: "Chào mừng mọi người".to_string(),
+            success: true,
+            error: None,
+        };
+
+        let json = serde_json::to_string(&result).expect("Serialize ProviderTestResult");
+        assert!(json.contains("245"));
+        assert!(json.contains("openai_compatible"));
+
+        let de: ProviderTestResult = serde_json::from_str(&json).expect("Deserialize ProviderTestResult");
+        assert_eq!(de.latency_ms, 245);
+        assert_eq!(de.translation, "Chào mừng mọi người");
+        assert!(de.success);
+        assert!(de.error.is_none());
+    }
+}

@@ -70,10 +70,21 @@ export interface TranscriptRecord {
 }
 
 export interface TranslationConfig {
-  provider: "local" | "openai" | "anthropic" | "gemini";
+  provider: "local" | "openai" | "openai_compatible" | "anthropic" | "gemini";
   local_endpoint: string;
   openai_api_key?: string;
   anthropic_api_key?: string;
   gemini_api_key?: string;
   model_name: string;
+  custom_endpoint?: string;
+  custom_api_key?: string;
+}
+
+export interface ProviderTestResult {
+  provider: string;
+  model: string;
+  latency_ms: number;
+  translation: string;
+  success: boolean;
+  error?: string;
 }

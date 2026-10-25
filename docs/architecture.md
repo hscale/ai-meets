@@ -61,7 +61,11 @@
 ### 3. Translation & Glossary Pipeline (`src-tauri/src/translation/`)
 - **Hybrid AI Providers**:
   - **Local Model**: OpenAI-compatible endpoint (`/v1/chat/completions`) connecting to `llama-server` or `Ollama`. Defaults to Tencent's `Hunyuan-MT2 1.8B` or `LMT-60 0.6B`.
-  - **Cloud APIs**: OpenAI (`gpt-4o-mini`), Anthropic Claude (`claude-3-5-sonnet`, `claude-3-haiku`), Google Gemini (`gemini-2.0-flash`).
+  - **OpenAI-Compatible Custom Backends (`openai_compatible`)**: Generic client supporting arbitrary Base URLs (DeepSeek, Groq, OpenRouter, Together AI, Mistral, SiliconFlow, local vLLM/Ollama), custom Bearer tokens, and model identifiers. Includes canonical endpoint normalizer (`normalize_openai_endpoint`).
+  - **Cloud APIs**: Official native integrations for OpenAI (`gpt-4o-mini`, `gpt-4o`), Anthropic Claude (`claude-3-5-sonnet`, `claude-3-haiku`), Google Gemini (`gemini-2.0-flash`).
+- **Live Provider Benchmarking & Comparison (`commands::test_provider`)**:
+  - Measures millisecond round-trip latency (`Instant::now()`) and captures translated text across candidate backends.
+  - Returns structured `ProviderTestResult` with execution diagnostics, allowing side-by-side leaderboard ranking without altering active session config.
 - **In-Context Glossary Injection**:
   - SQLite terminology lookups matching words in the source utterance.
   - Injects constraints into prompt: `"Source Term" translates to "Target Term"`.

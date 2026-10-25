@@ -52,6 +52,8 @@ pub fn run() {
             commands::process_speech_chunk,
             commands::ask_copilot_manual,
             commands::set_overlay_visible,
+            commands::toggle_overlay_visible,
+            commands::resize_overlay,
             commands::set_overlay_locked,
             commands::toggle_compose,
             commands::compose_translate,
@@ -77,7 +79,7 @@ pub fn run() {
 }
 
 fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let toggle_overlay_item = MenuItem::with_id(app, "toggle_overlay", "Toggle Subtitles Overlay", true, None::<&str>)?;
+    let toggle_overlay_item = MenuItem::with_id(app, "toggle_overlay", "Toggle Live Subtitles", true, None::<&str>)?;
     let toggle_lock_item = MenuItem::with_id(app, "toggle_lock", "Lock Subtitles (Click-Through)", true, None::<&str>)?;
     let compose_item = MenuItem::with_id(app, "compose", "Type & Translate (F2)", true, None::<&str>)?;
     let open_main_item = MenuItem::with_id(app, "open_main", "Open Dashboard", true, None::<&str>)?;

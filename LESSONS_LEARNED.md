@@ -61,3 +61,19 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   Instead of mutating global state or requiring active meeting audio, the `test_provider` command instantiates a transient `TranslationEngine` configured on-the-fly, sends a standardized meeting phrase ("Welcome everyone to our project architecture review meeting."), and measures high-resolution round-trip latency (`Instant::now()`).
 - **Graceful Fault Reporting**:
   Network timeouts, bad keys, or unreachable endpoints are captured inside `ProviderTestResult { success: false, error: Some(err) }` rather than rejecting IPC promises, enabling multi-provider comparisons to execute in parallel or sequentially without breaking UI state.
+
+---
+
+## 6. Transparent Window Bounding Boxes & Mouse Hit-Testing Pitfalls
+
+### Observation
+- On macOS, a transparent `NSWindow` containing a `WKWebView` will intercept mouse clicks across the entire WebKit `NSView` rectangular frame (`window.width x window.height`), even if HTML elements inside are transparent or have zero opacity.
+- Sizing a transparent window larger than its inner visual card (e.g. `940x220` with a centered `768px` card and `p-2` padding) creates invisible "dead zones" around the card (up to 86px on left/right and 120px on top) that intercept mouse clicks and prevent users from clicking on underlying application controls (such as Zoom controls, browser tabs, or code editors).
+
+### Solution
+- **Zero Outer Margins / Padding**:
+  The outer webview container must have `m-0 p-0` and span `w-full`, ensuring the physical native window frame exactly tracks the visual boundary of the card.
+- **Dynamic Window Height Resizing (`ResizeObserver` + Native IPC)**:
+  Instead of hardcoding a large window height to accommodate optional drawers (like the AI Copilot card), configure a compact default height (`110px`) with `minHeight: 60px` in `tauri.conf.json`, and attach a `ResizeObserver` in the webview. When content expands or contracts, call `resize_overlay(height)` to dynamically adjust the native window's logical size in real time.
+- **User-Centric Terminology**:
+  Renamed internal technical jargon ("Overlay") to intuitive user-facing terminology ("Subtitles" / "Live Subtitles") with visual active state feedback.

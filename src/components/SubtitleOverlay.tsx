@@ -27,6 +27,22 @@ export const SubtitleOverlay: React.FC = () => {
   };
 
   const recentSubtitles = subtitles.slice(-2);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Automatically adjust window height to tightly hug content without dead padding/margin
+  React.useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = Math.ceil(entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height);
+        if (height >= 60) {
+          invoke("resize_overlay", { height }).catch(() => {});
+        }
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleStartDrag = async (e: React.MouseEvent) => {
     // Only drag on primary (left) button and not on interactive buttons/selectors
@@ -44,19 +60,22 @@ export const SubtitleOverlay: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-2 flex flex-col justify-end select-none font-sans bg-transparent">
+    <div
+      ref={containerRef}
+      className="w-full flex flex-col select-none font-sans bg-transparent m-0 p-0 overflow-hidden"
+    >
       {/* Optional Floating Copilot Card Drawer */}
       {showCopilot && latestSuggestion && (
         <div
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
-          className="mb-2 max-w-xl mx-auto w-full transition-all duration-200"
+          className="mb-1.5 w-full transition-all duration-200"
         >
           <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} compact />
         </div>
       )}
 
       {/* Main Subtitle Container */}
-      <div className="w-full max-w-3xl mx-auto bg-slate-950/90 backdrop-blur-2xl border border-slate-700/60 rounded-2xl p-3.5 shadow-2xl relative group">
+      <div className="w-full bg-slate-950/95 backdrop-blur-2xl border border-slate-700/70 rounded-2xl p-3 shadow-2xl relative group">
         {/* Top Control Bar (Draggable) */}
         <div
           onMouseDown={handleStartDrag}
@@ -66,7 +85,7 @@ export const SubtitleOverlay: React.FC = () => {
         >
           <div className="flex items-center gap-2 pointer-events-none select-none">
             <Move className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-semibold text-slate-200 tracking-wide">AI Meets</span>
+            <span className="font-semibold text-slate-200 tracking-wide">Live Subtitles</span>
             <AudioVisualizer level={audioLevel} active={status.is_recording} />
           </div>
 

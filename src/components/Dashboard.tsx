@@ -46,11 +46,13 @@ export const Dashboard: React.FC = () => {
     settings,
     audioLevel,
     overlayLocked,
+    overlayVisible,
     startSession,
     stopSession,
     simulateSpeech,
     askCopilotManual,
     setOverlayVisible,
+    toggleOverlayVisible,
     setOverlayLocked,
     saveProfile,
     setActiveProfile,
@@ -383,18 +385,22 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="pt-1 flex gap-1.5">
             <button
-              onClick={() => setOverlayVisible(true)}
-              className="flex-1 flex items-center justify-center gap-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition"
-              title="Open Subtitle HUD"
+              onClick={toggleOverlayVisible}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded text-[11px] font-medium transition ${
+                overlayVisible
+                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
+                  : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+              }`}
+              title="Toggle Live Subtitles HUD"
             >
-              <Eye className="w-3 h-3" /> Overlay
+              <Eye className="w-3 h-3" /> Subtitles
             </button>
             <button
               onClick={() => setOverlayLocked(!overlayLocked)}
               className={`px-2 py-1 rounded text-[11px] transition ${
-                overlayLocked ? "bg-rose-600 text-white" : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                overlayLocked ? "bg-rose-600 text-white shadow-sm shadow-rose-600/30" : "bg-slate-800 hover:bg-slate-700 text-slate-300"
               }`}
-              title="Lock click-through"
+              title={overlayLocked ? "Subtitles click-through is locked (clicks pass through)" : "Lock click-through for Subtitles"}
             >
               {overlayLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
             </button>

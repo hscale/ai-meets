@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, State, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 use uuid::Uuid;
 
 use crate::audio::{AudioCaptureService, AudioDeviceInfo};
@@ -280,7 +280,46 @@ pub async fn drag_window(window: WebviewWindow) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn set_overlay_visible(app: AppHandle, visible: bool) -> Result<(), String> {
+    if visible {
+        let _ = app.emit("overlay:visibility_changed", true);
+    } else {
+        let _ = app.emit("overlay:visibility_changed", false);
+    }
     OverlayManager::set_visible(&app, visible).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn toggle_overlay_visible(app: AppHandle) -> Result<bool, String> {
+    if let Some(window) = app.get_webview_window("overlay") {
+        let is_vis = window.is_visible().unwrap_or(false);
+        if is_vis {
+            window.hide().map_err(|e| e.to_string())?;
+            let _ = app.emit("overlay:visibility_changed", false);
+            Ok(false)
+        } else {
+            window.show().map_err(|e| e.to_string())?;
+            window.set_focus().map_err(|e| e.to_string())?;
+            let _ = app.emit("overlay:visibility_changed", true);
+            Ok(true)
+        }
+    } else {
+        Err("Overlay window not found".to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn resize_overlay(app: AppHandle, width: Option<f64>, height: f64) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("overlay") {
+        let current_size = window.inner_size().map_err(|e| e.to_string())?;
+        let scale = window.scale_factor().unwrap_or(1.0);
+        let target_width = width.unwrap_or((current_size.width as f64) / scale);
+        // Ensure height is at least 60px
+        let safe_height = height.max(60.0);
+        window
+            .set_size(tauri::LogicalSize::new(target_width, safe_height))
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 #[tauri::command]

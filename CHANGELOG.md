@@ -5,6 +5,21 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-10-26
+
+### Refactored
+- **Renamed "Overlay" to "Subtitles"**:
+  - Replaced ambiguous, developer-centric "Overlay" label with user-friendly "Subtitles" across the Dashboard sidebar and System Tray menu (`Toggle Live Subtitles`).
+  - Added dynamic active state styling on the Subtitles button reflecting window visibility and click-through lock status.
+  - Implemented `toggle_overlay_visible` Tauri command allowing single-click toggle of the Subtitles HUD from the dashboard.
+
+### Fixed
+- **Subtitles Window Bounding Box & Mouse Click-Through Occlusion**:
+  - Eliminated dead padding (`p-2`), horizontal margins (`max-w-3xl mx-auto`), and top vertical spacing (`flex-col justify-end`) that previously caused the invisible transparent window webview to capture mouse events outside the visible card.
+  - Sized the Subtitles window tightly to 760x110 (minHeight 60px) and configured full 100% card width.
+  - Added native dynamic height tracking with `ResizeObserver` calling `resize_overlay(height)` in Rust, dynamically expanding the window when the Copilot card drawer opens (~230px) and shrinking it back to fit subtitles only (~110px).
+  - Users can now move the mouse directly around the card borders and interact with applications beneath the window without dead-zone mouse interception.
+
 ## [0.1.4] - 2026-10-26
 
 ### Added

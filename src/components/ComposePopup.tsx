@@ -59,8 +59,8 @@ export const ComposePopup: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen p-3 flex flex-col justify-center items-center font-sans">
-      <div className="w-full max-w-xl bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-slate-100 flex flex-col gap-3">
+    <div className="w-full h-screen p-3 flex flex-col justify-center items-center font-sans bg-transparent pointer-events-none">
+      <div className="w-full max-w-xl bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-slate-100 flex flex-col gap-3 pointer-events-auto">
         {/* Header & Language Selectors */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-2 text-xs">
           <div className="flex items-center gap-2">

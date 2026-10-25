@@ -10,7 +10,7 @@ pub mod translation;
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 
 use db::Database;
 use overlay::OverlayManager;
@@ -109,7 +109,15 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             "toggle_lock" => {
-                let _ = OverlayManager::set_click_through(app, true);
+                let app_handle = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    let state = app_handle.state::<AppState>();
+                    let mut lock_guard = state.is_overlay_locked.lock().await;
+                    *lock_guard = !*lock_guard;
+                    let locked = *lock_guard;
+                    let _ = app_handle.emit("overlay:lock_changed", locked);
+                    let _ = OverlayManager::set_click_through(&app_handle, locked);
+                });
             }
             "compose" => {
                 let _ = compose::ComposeManager::toggle(app);

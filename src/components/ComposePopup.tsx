@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Send, ArrowRight, X, Sparkles } from "lucide-react";
 
 export const ComposePopup: React.FC = () => {
@@ -58,11 +59,25 @@ export const ComposePopup: React.FC = () => {
     await invoke("toggle_compose");
   };
 
+  const handleStartDrag = async (e: React.MouseEvent) => {
+    if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, a")) {
+      try {
+        await getCurrentWindow().startDragging();
+      } catch (err) {
+        console.warn("Failed to drag compose window:", err);
+      }
+    }
+  };
+
   return (
-    <div className="w-full h-screen p-3 flex flex-col justify-center items-center font-sans bg-transparent pointer-events-none">
-      <div className="w-full max-w-xl bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-slate-100 flex flex-col gap-3 pointer-events-auto">
+    <div className="w-full h-full p-3 flex flex-col justify-center items-center font-sans bg-transparent select-none">
+      <div className="w-full max-w-xl bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-slate-100 flex flex-col gap-3">
         {/* Header & Language Selectors */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2 text-xs">
+        <div
+          onMouseDown={handleStartDrag}
+          data-tauri-drag-region="deep"
+          className="flex items-center justify-between border-b border-slate-800 pb-2 text-xs cursor-move select-none"
+        >
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-indigo-400" />
             <span className="font-bold text-indigo-300 uppercase tracking-wider">Type & Translate</span>

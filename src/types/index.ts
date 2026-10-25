@@ -21,13 +21,17 @@ export interface LiveSubtitleEvent {
   tgt_text: string;
   is_question: boolean;
   is_final: boolean;
+  is_edited?: boolean;
 }
 
 export interface QuestionSuggestion {
   question_id: string;
   question_text: string;
+  question_translation?: string | null;
   talking_points: string[];
   sample_answer: string;
+  sample_answer_bilingual?: string | null;
+  keywords?: string[];
   created_at: string;
 }
 

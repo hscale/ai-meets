@@ -26,6 +26,11 @@ import {
   Zap,
   AlertCircle,
   BarChart2,
+  Pencil,
+  Copy,
+  Check,
+  X,
+  Globe,
 } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
@@ -64,12 +69,44 @@ export const Dashboard: React.FC = () => {
     clearHistory,
     exportTranscript,
     saveSettings,
+    transcriptionMode,
+    setTranscriptionMode,
+    updateSubtitle,
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<"live" | "profiles" | "glossary" | "history" | "settings">("live");
   const [sessionTitle, setSessionTitle] = useState("");
   const [testSpeechText, setTestSpeechText] = useState("");
   const [testSpeaker, setTestSpeaker] = useState("Interviewer");
+
+  // Live Transcript Editing & Copy state
+  const [editingSubtitleId, setEditingSubtitleId] = useState<string | null>(null);
+  const [editSubSrcText, setEditSubSrcText] = useState("");
+  const [editSubTgtText, setEditSubTgtText] = useState("");
+  const [copiedSubtitleId, setCopiedSubtitleId] = useState<string | null>(null);
+
+  const handleCopySubtitle = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedSubtitleId(id);
+    setTimeout(() => setCopiedSubtitleId(null), 2000);
+  };
+
+  const handleStartEditSubtitle = (sub: (typeof subtitles)[0]) => {
+    setEditingSubtitleId(sub.id);
+    setEditSubSrcText(sub.src_text);
+    setEditSubTgtText(sub.tgt_text);
+  };
+
+  const handleSaveEditSubtitle = async (id: string) => {
+    if (editSubTgtText.trim()) {
+      await updateSubtitle(id, editSubSrcText.trim(), editSubTgtText.trim());
+    }
+    setEditingSubtitleId(null);
+  };
+
+  const handleCancelEditSubtitle = () => {
+    setEditingSubtitleId(null);
+  };
 
   // Profile Form state
   const [profileName, setProfileName] = useState("");
@@ -485,50 +522,185 @@ export const Dashboard: React.FC = () => {
             {/* Live Subtitles Log (2 cols) */}
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-emerald-400" />
-                  Live Meeting Dialogue Stream
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-emerald-400" />
+                    Live Meeting Dialogue Stream
+                  </h2>
+
+                  {/* Translation Mode Toggle */}
+                  <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-700/60 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setTranscriptionMode("bilingual")}
+                      className={`px-2.5 py-1 rounded-md font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                        transcriptionMode === "bilingual"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                      title="Show both translated text and original spoken speech"
+                    >
+                      <Globe className="w-3.5 h-3.5" /> Bilingual Mode
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTranscriptionMode("single")}
+                      className={`px-2.5 py-1 rounded-md font-semibold transition cursor-pointer ${
+                        transcriptionMode === "single"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                      title="Show translated subtitles only"
+                    >
+                      Single Mode
+                    </button>
+                  </div>
+                </div>
+
                 <span className="text-xs text-slate-400">
                   {subtitles.length} utterances captured
                 </span>
               </div>
 
               {/* Subtitles Box */}
-              <div className="flex-1 min-h-[380px] bg-slate-900/60 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3">
+              <div className="flex-1 min-h-[380px] bg-slate-900/60 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3 select-text cursor-text">
                 {subtitles.length > 0 ? (
-                  subtitles.map((sub) => (
-                    <div
-                      key={sub.id}
-                      className={`p-3 rounded-xl border transition ${
-                        sub.is_question
-                          ? "bg-amber-950/20 border-amber-500/30"
-                          : "bg-slate-800/40 border-slate-700/40"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-1.5 py-0.5 rounded font-bold uppercase text-[10px] ${
-                              sub.speaker === "Me" ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300"
-                            }`}
-                          >
-                            {sub.speaker}
-                          </span>
-                          {sub.is_question && (
-                            <span className="px-1.5 py-0.5 rounded font-semibold text-[10px] bg-amber-500/20 text-amber-300">
-                              ❓ Question
-                            </span>
-                          )}
+                  subtitles.map((sub) => {
+                    const isEditing = editingSubtitleId === sub.id;
+
+                    if (isEditing) {
+                      return (
+                        <div
+                          key={sub.id}
+                          className="p-3 rounded-xl bg-slate-900 border border-indigo-500/60 space-y-2 shadow-lg select-auto"
+                        >
+                          <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
+                            <span>Editing Utterance ({sub.speaker}):</span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handleSaveEditSubtitle(sub.id)}
+                                className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 transition cursor-pointer"
+                              >
+                                <Check className="w-3.5 h-3.5" /> Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleCancelEditSubtitle}
+                                className="p-1 rounded text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-400 uppercase font-semibold">
+                              Translated Text
+                            </label>
+                            <input
+                              type="text"
+                              value={editSubTgtText}
+                              onChange={(e) => setEditSubTgtText(e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 mt-0.5"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-400 uppercase font-semibold">
+                              Original Spoken Text
+                            </label>
+                            <input
+                              type="text"
+                              value={editSubSrcText}
+                              onChange={(e) => setEditSubSrcText(e.target.value)}
+                              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 italic focus:outline-none focus:border-indigo-500 mt-0.5"
+                            />
+                          </div>
                         </div>
-                        <span className="text-[10px] text-slate-500">
-                          {new Date(sub.timestamp_ms).toLocaleTimeString()}
-                        </span>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={sub.id}
+                        className={`p-3 rounded-xl border transition group/item select-text ${
+                          sub.is_question
+                            ? "bg-amber-950/20 border-amber-500/30"
+                            : "bg-slate-800/40 border-slate-700/40"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`px-1.5 py-0.5 rounded font-bold uppercase text-[10px] ${
+                                sub.speaker === "Me" ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300"
+                              }`}
+                            >
+                              {sub.speaker}
+                            </span>
+                            {sub.is_question && (
+                              <span className="px-1.5 py-0.5 rounded font-semibold text-[10px] bg-amber-500/20 text-amber-300">
+                                ❓ Question
+                              </span>
+                            )}
+                            {sub.is_edited && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                Edited
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(sub.timestamp_ms).toLocaleTimeString()}
+                            </span>
+
+                            {/* Copy & Edit Buttons */}
+                            <div className="flex items-center gap-1 opacity-70 group-hover/item:opacity-100 transition">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCopySubtitle(
+                                    sub.id,
+                                    transcriptionMode === "bilingual"
+                                      ? `${sub.src_text}\n${sub.tgt_text}`
+                                      : sub.tgt_text
+                                  )
+                                }
+                                className="p-1 rounded hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                                title="Copy utterance"
+                              >
+                                {copiedSubtitleId === sub.id ? (
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditSubtitle(sub)}
+                                className="p-1 rounded hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                                title="Edit utterance text"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Primary Translated Text */}
+                        <div className="text-sm font-semibold text-slate-100 select-text leading-snug">
+                          {sub.tgt_text}
+                        </div>
+
+                        {/* Secondary Spoken Text (Bilingual Mode) */}
+                        {transcriptionMode === "bilingual" && (
+                          <div className="text-xs text-slate-400 italic mt-0.5 select-text">
+                            {sub.src_text}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-sm font-semibold text-slate-100">{sub.tgt_text}</div>
-                      <div className="text-xs text-slate-400 italic mt-0.5">{sub.src_text}</div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-2">
                     <Mic className="w-8 h-8 opacity-40" />

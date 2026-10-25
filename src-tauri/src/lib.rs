@@ -66,6 +66,7 @@ pub fn run() {
             commands::get_history_session,
             commands::delete_history_session,
             commands::clear_history,
+            commands::update_transcript,
             commands::export_transcript,
             commands::list_glossary,
             commands::add_glossary_entry,

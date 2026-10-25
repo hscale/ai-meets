@@ -99,3 +99,23 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   4. **Diagnostic Advisory**: Append an explicit note indicating the offline provider status (e.g. `[Offline Mode: AI backend at http://127.0.0.1:8080/v1 was unreachable]`).
 - **Resilient Persistence**:
   Always emit `copilot:suggestion` and persist the record with its suggested answer to SQLite, ensuring the dialogue stream and Copilot UI remain synchronized even in full offline environments.
+
+---
+
+## 8. Multi-Modal Subtitle Interactivity: Dual-Language Modes, In-Place Editing & Keyword Grounding
+
+### Observation
+- **Information Density & Language Needs**:
+  During multi-lingual interviews and meetings, participants often face differing linguistic cognitive loads: some want only the translated stream to avoid visual distraction, while others need side-by-side bilingual verification (original speech + translation). In AI Copilot, candidates often need to read the question translation in their native tongue while practicing/saying the suggested answer in English.
+- **ASR Acoustic Errors & Immutability**:
+  Speech-to-text engines inevitably mishear domain acronyms, technical jargon, or proper nouns (e.g., "Kafka" vs "cup car", or complex database terminology). If transcripts are immutable, those misheard terms propagate into exported meeting notes, history, and AI Copilot contexts.
+- **Glanceability of Key Talking Points**:
+  Dense text paragraphs in AI suggestion cards reduce comprehension speed under high-pressure meeting scenarios. Without keyword visual hierarchy, users cannot scan crucial architectural talking points in sub-second glances.
+
+### Solution
+- **Synchronized Single / Bilingual Toggles**:
+  Introduced `transcriptionMode` and `copilotMode` across the application store. In Single mode, UI hides secondary text for a minimalist view; in Bilingual mode, Subtitles HUD and Dashboard display stacked source and target text, and Copilot displays primary answer, secondary English response, and translated question.
+- **Selectable & In-Place Editable Transcripts**:
+  Removed CSS `select-none` from subtitle text blocks and enabled `select-text cursor-text`. Added inline edit inputs and quick copy actions on both the floating HUD and main window. Edits update the local store and invoke `update_transcript` in Rust to mutate SQLite records and broadcast `subtitle:updated` via IPC.
+- **Visual Keyword Grounding (`HighlightText`)**:
+  Implemented regex and markdown concept extraction wrapping architectural terms (e.g., `**Expand and Contract**`, `**Database-per-Service**`, `**Zero Downtime**`) into high-contrast highlighted badges and tag pills, enabling instant sub-second recognition during live speech.

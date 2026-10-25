@@ -429,6 +429,23 @@ pub async fn clear_history(state: State<'_, AppState>) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub async fn update_transcript(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    id: String,
+    src_text: String,
+    tgt_text: String,
+) -> Result<(), String> {
+    state.db.update_transcript_text(&id, &src_text, &tgt_text).map_err(|e| e.to_string())?;
+    let _ = app.emit("subtitle:updated", serde_json::json!({
+        "id": id,
+        "src_text": src_text,
+        "tgt_text": tgt_text,
+    }));
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn export_transcript(state: State<'_, AppState>, session_id: String, format: String) -> Result<String, String> {
     let transcripts = state.db.get_session_transcripts(&session_id).map_err(|e| e.to_string())?;
 

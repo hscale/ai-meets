@@ -4,7 +4,17 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore } from "../store/useAppStore";
 import { CopilotCard } from "./CopilotCard";
 import { AudioVisualizer } from "./AudioVisualizer";
-import { Lock, Unlock, Sparkles, Move, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Lock,
+  Unlock,
+  Sparkles,
+  Move,
+  Copy,
+  Check,
+  Pencil,
+  X,
+  Globe,
+} from "lucide-react";
 
 export const SubtitleOverlay: React.FC = () => {
   const {
@@ -15,10 +25,19 @@ export const SubtitleOverlay: React.FC = () => {
     audioLevel,
     status,
     askCopilotManual,
+    transcriptionMode,
+    setTranscriptionMode,
+    updateSubtitle,
   } = useAppStore();
 
   const [showCopilot, setShowCopilot] = useState(false);
   const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
+
+  // Inline editing state for HUD
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editSrcText, setEditSrcText] = useState("");
+  const [editTgtText, setEditTgtText] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Automatically open Copilot drawer when a question suggestion arrives
   React.useEffect(() => {
@@ -49,11 +68,11 @@ export const SubtitleOverlay: React.FC = () => {
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [editingId, showCopilot, transcriptionMode, recentSubtitles]);
 
   const handleStartDrag = async (e: React.MouseEvent) => {
-    // Only drag on primary (left) button and not on interactive buttons/selectors
-    if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, a")) {
+    // Only drag on primary (left) button and not on interactive buttons/selectors/inputs
+    if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, textarea, a")) {
       try {
         await invoke("drag_window");
       } catch (err) {
@@ -66,10 +85,33 @@ export const SubtitleOverlay: React.FC = () => {
     }
   };
 
+  const handleCopySubtitle = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const startEditing = (sub: (typeof subtitles)[0]) => {
+    setEditingId(sub.id);
+    setEditSrcText(sub.src_text);
+    setEditTgtText(sub.tgt_text);
+  };
+
+  const saveEditing = async (id: string) => {
+    if (editTgtText.trim()) {
+      await updateSubtitle(id, editSrcText.trim(), editTgtText.trim());
+    }
+    setEditingId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+  };
+
   return (
     <div
       ref={containerRef}
-      className="w-full flex flex-col select-none font-sans bg-transparent m-0 p-0 overflow-hidden"
+      className="w-full flex flex-col font-sans bg-transparent m-0 p-0 overflow-hidden"
     >
       {/* Floating Copilot Card Drawer */}
       {showCopilot && (
@@ -107,6 +149,34 @@ export const SubtitleOverlay: React.FC = () => {
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Translation Mode Picker (Bilingual vs Single) */}
+            <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-[10px]">
+              <button
+                type="button"
+                onClick={() => setTranscriptionMode("bilingual")}
+                className={`px-1.5 py-0.5 rounded font-bold transition cursor-pointer flex items-center gap-0.5 ${
+                  transcriptionMode === "bilingual"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+                title="Bilingual Mode: Show both translated and source spoken text"
+              >
+                <Globe className="w-2.5 h-2.5" /> BI
+              </button>
+              <button
+                type="button"
+                onClick={() => setTranscriptionMode("single")}
+                className={`px-1.5 py-0.5 rounded font-bold transition cursor-pointer ${
+                  transcriptionMode === "single"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+                title="Single Mode: Show translated subtitles only"
+              >
+                SINGLE
+              </button>
+            </div>
+
             {/* Font size picker */}
             <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800">
               {(["sm", "md", "lg"] as const).map((s) => (
@@ -156,33 +226,122 @@ export const SubtitleOverlay: React.FC = () => {
         {/* Subtitles Stream */}
         <div
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
-          className="space-y-2 min-h-[50px] flex flex-col justify-end"
+          className="space-y-2 min-h-[50px] flex flex-col justify-end select-text cursor-text"
         >
           {recentSubtitles.length > 0 ? (
-            recentSubtitles.map((sub) => (
-              <div key={sub.id} className="animate-fade-in space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${
-                      sub.speaker === "Me" ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300"
-                    }`}
+            recentSubtitles.map((sub) => {
+              const isEditing = editingId === sub.id;
+
+              if (isEditing) {
+                return (
+                  <div
+                    key={sub.id}
+                    className="p-2 rounded-xl bg-slate-900/90 border border-indigo-500/50 space-y-1.5 select-auto"
                   >
-                    {sub.speaker}
-                  </span>
-                  {sub.is_question && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
-                      ❓ Question
-                    </span>
-                  )}
-                  <span className="text-xs text-slate-400 italic">{sub.src_text}</span>
+                    <div className="flex items-center justify-between text-[10px] text-indigo-300 font-semibold">
+                      <span>Editing Utterance ({sub.speaker}):</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => saveEditing(sub.id)}
+                          className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-0.5 cursor-pointer"
+                        >
+                          <Check className="w-3 h-3" /> Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="p-0.5 rounded text-slate-400 hover:text-slate-200 cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      value={editTgtText}
+                      onChange={(e) => setEditTgtText(e.target.value)}
+                      placeholder="Translated text..."
+                      className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    />
+                    <input
+                      type="text"
+                      value={editSrcText}
+                      onChange={(e) => setEditSrcText(e.target.value)}
+                      placeholder="Original spoken text..."
+                      className="w-full bg-slate-950/70 border border-slate-800 rounded px-2 py-0.5 text-[11px] text-slate-300 italic focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div key={sub.id} className="animate-fade-in space-y-0.5 group/item">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${
+                          sub.speaker === "Me" ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300"
+                        }`}
+                      >
+                        {sub.speaker}
+                      </span>
+                      {sub.is_question && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                          ❓ Question
+                        </span>
+                      )}
+                      {sub.is_edited && (
+                        <span className="text-[9px] font-medium px-1 rounded bg-slate-800 text-indigo-300 border border-indigo-500/30">
+                          Edited
+                        </span>
+                      )}
+                      {transcriptionMode === "bilingual" && (
+                        <span className="text-xs text-slate-400 italic select-text">{sub.src_text}</span>
+                      )}
+                    </div>
+
+                    {/* Quick action buttons (Copy / Edit) */}
+                    <div className="flex items-center gap-1 opacity-80 group-hover/item:opacity-100 transition">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCopySubtitle(
+                            sub.id,
+                            transcriptionMode === "bilingual"
+                              ? `${sub.src_text}\n${sub.tgt_text}`
+                              : sub.tgt_text
+                          )
+                        }
+                        className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                        title="Copy subtitle text"
+                      >
+                        {copiedId === sub.id ? (
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startEditing(sub)}
+                        className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                        title="Edit transcription text"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Primary Translated Text */}
+                  <div className={`font-semibold text-slate-100 ${fontClasses[fontSize]} leading-snug select-text`}>
+                    {sub.tgt_text}
+                  </div>
                 </div>
-                <div className={`font-semibold text-slate-100 ${fontClasses[fontSize]} leading-snug`}>
-                  {sub.tgt_text}
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <div className="text-center py-2 text-slate-400 text-xs italic">
+            <div className="text-center py-2 text-slate-400 text-xs italic select-none">
               Subtitles ready. Speaking or system audio will translate here in real time...
             </div>
           )}

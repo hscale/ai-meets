@@ -62,9 +62,11 @@ export const ComposePopup: React.FC = () => {
   const handleStartDrag = async (e: React.MouseEvent) => {
     if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, a")) {
       try {
-        await getCurrentWindow().startDragging();
+        await invoke("drag_window");
       } catch (err) {
-        console.warn("Failed to drag compose window:", err);
+        try {
+          await getCurrentWindow().startDragging();
+        } catch (_) {}
       }
     }
   };
@@ -76,14 +78,20 @@ export const ComposePopup: React.FC = () => {
         <div
           onMouseDown={handleStartDrag}
           data-tauri-drag-region="deep"
+          style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
           className="flex items-center justify-between border-b border-slate-800 pb-2 text-xs cursor-move select-none"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pointer-events-none select-none">
             <Sparkles className="w-4 h-4 text-indigo-400" />
             <span className="font-bold text-indigo-300 uppercase tracking-wider">Type & Translate</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div
+            style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+            className="flex items-center gap-2"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
             <select
               value={srcLang}
               onChange={(e) => setSrcLang(e.target.value)}

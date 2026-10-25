@@ -30,6 +30,13 @@
 - **Problem**: Holding `parking_lot::MutexGuard` or `std::sync::MutexGuard` across `.await` points causes compilation errors because sync lock guards cannot be safely moved across thread boundaries during coroutine suspension.
 - **Solution**: Use `tokio::sync::Mutex` or `tokio::sync::RwLock` for state accessed across async network calls (e.g., LLM translation requests), or restrict synchronous mutex lock scopes to synchronous blocks before calling `.await`.
 
-## 5. Tauri v2 macOS `Info.plist` Configuration
-- **Problem**: Tauri v2 `tauri.conf.json` does not accept raw inline JSON objects under `bundle.macOS.infoPlist`. Supplying an object causes `tauri build` to fail with invalid type deserialization errors.
-- **Solution**: Create a dedicated `src-tauri/Info.plist` XML file containing required entitlements (such as `NSAudioCaptureUsageDescription` and `NSMicrophoneUsageDescription`) and reference it as a path string: `"infoPlist": "Info.plist"`.
+## 6. Tauri v2 Capability ACL & `plugin:window|start_dragging`
+- **Problem**: In Tauri v2, if no capability configuration (`src-tauri/capabilities/*.json`) is present, Tauri's Access Control List (ACL) strictly denies all calls from Webviews to core window commands (`plugin:window|start_dragging`, `plugin:window|set_focus`, etc.), causing `getCurrentWindow().startDragging()` to silently fail.
+- **Solution**:
+  1. Define `src-tauri/capabilities/default.json` with permissions for `core:default`, `core:window:default`, `core:window:allow-start-dragging`, and relevant plugin defaults.
+  2. Implement an application-level Tauri command `drag_window` (`window.start_dragging()`) which is registered in `tauri::generate_handler!`, bypassing plugin ACL limits.
+  3. Combine with native CSS `-webkit-app-region: drag` on draggable headers and `-webkit-app-region: no-drag` on interactive toolbars. This dual-layer approach provides 100% dragging reliability across both OS-composited and JS-dispatched interactions.
+
+## 7. Automated Cross-Platform UI QA Testing
+- **Problem**: Testing transparent floating windows, window dragging, and WebKit hit testing cannot be verified solely by unit tests or static analysis because OS WindowServer compositing, Quartz window levels, and WebKit mouse handling interact dynamically.
+- **Solution**: Build automated Swift/Quartz test harnesses that query `CGWindowListCopyWindowInfo`, simulate authentic `CGEvent` mouse clicks and drags, verify exact delta changes in window coordinates, and capture visual proof with `screencapture`.

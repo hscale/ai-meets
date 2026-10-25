@@ -43,6 +43,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::drag_window,
             commands::list_audio_sources,
             commands::list_input_devices,
             commands::start_session,

@@ -5,6 +5,18 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-10-26
+
+### Fixed
+- **Tauri v2 ACL Capabilities & Dual-Layer Dragging**:
+  - Added `src-tauri/capabilities/default.json` granting `core:default`, `core:window:default`, and `core:window:allow-start-dragging` permissions across all windows, resolving the ACL denial on `plugin:window|start_dragging`.
+  - Added native `drag_window` command in Rust (`WebviewWindow::start_dragging`) to guarantee window movement even if client-side plugin ACLs are restricted.
+  - Implemented dual-layer dragging: native `-webkit-app-region: drag` for OS WindowServer composited drag and fallback `invoke("drag_window")` on `onMouseDown`.
+  - Configured `-webkit-app-region: no-drag` on the right-side control toolbar, subtitles stream, and copilot card drawer so all buttons and selections receive mouse events.
+- **Automated UI QA Verification**:
+  - Developed and executed an automated Swift/Quartz test suite verifying window movement by (+120, +70) and return, as well as exact coordinate hit-testing for font size buttons (`SM`, `MD`, `LG`).
+  - Visually and programmatically confirmed active button states and clean non-rectangular transparency with zero rectangular backdrops.
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore } from "../store/useAppStore";
 import { CopilotCard } from "./CopilotCard";
@@ -31,9 +32,13 @@ export const SubtitleOverlay: React.FC = () => {
     // Only drag on primary (left) button and not on interactive buttons/selectors
     if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, a")) {
       try {
-        await getCurrentWindow().startDragging();
+        await invoke("drag_window");
       } catch (err) {
-        console.warn("Failed to drag overlay window:", err);
+        try {
+          await getCurrentWindow().startDragging();
+        } catch (e2) {
+          console.warn("Failed to drag overlay window:", e2);
+        }
       }
     }
   };
@@ -42,7 +47,10 @@ export const SubtitleOverlay: React.FC = () => {
     <div className="w-full h-full p-2 flex flex-col justify-end select-none font-sans bg-transparent">
       {/* Optional Floating Copilot Card Drawer */}
       {showCopilot && latestSuggestion && (
-        <div className="mb-2 max-w-xl mx-auto w-full transition-all duration-200">
+        <div
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          className="mb-2 max-w-xl mx-auto w-full transition-all duration-200"
+        >
           <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} compact />
         </div>
       )}
@@ -53,6 +61,7 @@ export const SubtitleOverlay: React.FC = () => {
         <div
           onMouseDown={handleStartDrag}
           data-tauri-drag-region="deep"
+          style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
           className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/60 cursor-move text-xs text-slate-400 select-none"
         >
           <div className="flex items-center gap-2 pointer-events-none select-none">
@@ -62,6 +71,7 @@ export const SubtitleOverlay: React.FC = () => {
           </div>
 
           <div
+            style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
             className="flex items-center gap-1.5"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
@@ -113,7 +123,10 @@ export const SubtitleOverlay: React.FC = () => {
         </div>
 
         {/* Subtitles Stream */}
-        <div className="space-y-2 min-h-[50px] flex flex-col justify-end">
+        <div
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          className="space-y-2 min-h-[50px] flex flex-col justify-end"
+        >
           {recentSubtitles.length > 0 ? (
             recentSubtitles.map((sub) => (
               <div key={sub.id} className="animate-fade-in space-y-0.5">

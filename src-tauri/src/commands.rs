@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, State, WebviewWindow};
 use uuid::Uuid;
 
 use crate::audio::{AudioCaptureService, AudioDeviceInfo};
@@ -272,6 +272,11 @@ pub async fn ask_copilot_manual(
 // -------------------------------------------------------------
 // Overlay & Compose Windows
 // -------------------------------------------------------------
+
+#[tauri::command]
+pub async fn drag_window(window: WebviewWindow) -> Result<(), String> {
+    window.start_dragging().map_err(|e: tauri::Error| e.to_string())
+}
 
 #[tauri::command]
 pub async fn set_overlay_visible(app: AppHandle, visible: bool) -> Result<(), String> {

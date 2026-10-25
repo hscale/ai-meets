@@ -28,6 +28,7 @@ interface AppState {
   settings: TranslationConfig;
   audioLevel: number;
   overlayLocked: boolean;
+  overlayVisible: boolean;
 
   // Actions
   init: () => Promise<void>;
@@ -39,6 +40,7 @@ interface AppState {
   askCopilotManual: (question: string) => Promise<void>;
   setOverlayLocked: (locked: boolean) => Promise<void>;
   setOverlayVisible: (visible: boolean) => Promise<void>;
+  toggleOverlayVisible: () => Promise<void>;
   loadProfiles: () => Promise<void>;
   saveProfile: (profile: KnowledgeProfile) => Promise<void>;
   setActiveProfile: (id: string) => Promise<void>;
@@ -73,6 +75,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   audioLevel: 0,
   overlayLocked: false,
+  overlayVisible: false,
 
   init: async () => {
     try {
@@ -119,6 +122,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       await listen<boolean>("overlay:lock_changed", (event) => {
         set({ overlayLocked: event.payload });
+      });
+
+      await listen<boolean>("overlay:visibility_changed", (event) => {
+        set({ overlayVisible: event.payload });
       });
 
       await listen("session:stopped", () => {
@@ -178,6 +185,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setOverlayVisible: async (visible: boolean) => {
     await invoke("set_overlay_visible", { visible });
+    set({ overlayVisible: visible });
+  },
+
+  toggleOverlayVisible: async () => {
+    try {
+      const isVis = await invoke<boolean>("toggle_overlay_visible");
+      set({ overlayVisible: isVis });
+    } catch (e) {
+      console.warn("Failed to toggle overlay:", e);
+    }
   },
 
   loadProfiles: async () => {

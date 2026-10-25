@@ -82,11 +82,13 @@
   - Emits real-time `copilot:suggestion` payload containing structured bullet-point talking points and a concise suggested answer.
 
 ### 5. Multi-Window Presentation (`src-tauri/src/overlay/` & `src-tauri/src/compose/`)
-- **Overlay HUD**:
+- **Live Subtitles HUD**:
   - Floating transparent window with true non-rectangular background transparency.
+  - Tightly bounded frame (760x110 default, minHeight 60) with `m-0 p-0` outer container eliminating transparent dead-zones that intercept mouse clicks.
+  - Native dynamic height resizing (`commands::resize_overlay` + `ResizeObserver`) synchronizing physical window height with visual card height when the Copilot drawer expands (~230px) or collapses (~110px).
   - Avoids full-window native vibrancy/blur (e.g. `NSVisualEffectMaterial::HudWindow`) to prevent an opaque rectangular bounding box around floating pills.
   - Applies CSS glassmorphism (`backdrop-filter: blur()`, `rounded-2xl`, translucent borders) scoped directly to the subtitle card and copilot drawer.
-  - Click-through toggle via `set_ignore_cursor_events` and pass-through cursor event routing on outer transparent margins.
+  - Single-click toggle from Dashboard or Tray menu (`toggle_overlay_visible`) and click-through lock toggle (`set_ignore_cursor_events`).
 - **Type & Translate (Compose)**:
   - Global hotkey (`F2`) triggers a floating quick translation palette.
   - Auto-paste mechanism simulating platform clipboard copy and synthetic paste keystroke (`Cmd+V` / `Ctrl+V`).

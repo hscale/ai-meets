@@ -77,3 +77,25 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   Instead of hardcoding a large window height to accommodate optional drawers (like the AI Copilot card), configure a compact default height (`110px`) with `minHeight: 60px` in `tauri.conf.json`, and attach a `ResizeObserver` in the webview. When content expands or contracts, call `resize_overlay(height)` to dynamically adjust the native window's logical size in real time.
 - **User-Centric Terminology**:
   Renamed internal technical jargon ("Overlay") to intuitive user-facing terminology ("Subtitles" / "Live Subtitles") with visual active state feedback.
+
+---
+
+## 7. Fault-Tolerant AI Copilot: UI Drawer Decoupling & Graceful Offline Fallbacks
+
+### Observation
+- **UI State Coupling**:
+  Binding drawer rendering to both the visibility flag AND suggestion presence (`{showCopilot && latestSuggestion}`) caused user-initiated drawer toggles (`✨` button) to fail silently whenever no question had been asked yet. Users could not open the drawer ahead of time to inspect readiness, adjust layout, or enter manual questions.
+- **Silent Failures on Unreachable Inference Endpoints**:
+  When users launch the app with default settings (`provider: "local"`, endpoint: `http://127.0.0.1:8080/v1`) without actively running `llama-server`, backend inference queries throw `Connection refused (os error 61)`. In the background asynchronous loop, `if let Ok(suggestion) = ...` silently swallowed the error, emitting zero events. As a result, detected questions appeared in the Dialogue Stream while the AI Copilot card remained stuck on the initial empty placeholder without any explanation or response.
+
+### Solution
+- **Decoupled Drawer Rendering & Auto-Expansion**:
+  In `SubtitleOverlay.tsx`, render the drawer container purely conditioned on `showCopilot`, and provide a compact empty state with the prompt: *"Listening for questions in meeting, or type below:"* alongside the manual question input bar. When a question is detected and a suggestion arrives, use an effect (`useEffect(() => if (latestSuggestion) setShowCopilot(true), [latestSuggestion])`) to expand the drawer automatically.
+- **Knowledge-Grounded Smart Fallbacks (`generate_smart_fallback`)**:
+  When the primary LLM call fails (offline server, timeout, or rate limit), rather than aborting or dropping the event, intercept the error and generate domain-grounded talking points and sample answers based on:
+  1. **Knowledge Context**: Regex-extract matching facts from active Knowledge Profiles (e.g. CV/Resume, Product battlecards).
+  2. **Domain Heuristics**: Pre-configured architectural best practices for common system design topics (e.g. database migrations in microservices: dual-write, outbox pattern, strangler fig, zero-downtime schema evolution).
+  3. **Multi-Lingual Localization**: Tailor talking points and sample responses in English, Vietnamese, Japanese, and Chinese based on the active target language.
+  4. **Diagnostic Advisory**: Append an explicit note indicating the offline provider status (e.g. `[Offline Mode: AI backend at http://127.0.0.1:8080/v1 was unreachable]`).
+- **Resilient Persistence**:
+  Always emit `copilot:suggestion` and persist the record with its suggested answer to SQLite, ensuring the dialogue stream and Copilot UI remain synchronized even in full offline environments.

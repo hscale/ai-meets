@@ -201,27 +201,40 @@ pub async fn process_speech_chunk(
             let knowledge_text = active_profile.as_ref().map(|p| p.content.as_str());
 
             let suggester_guard = suggester.read().await;
-            if let Ok(suggestion) = suggester_guard.generate_suggestion(
+            let suggestion = match suggester_guard.generate_suggestion(
                 &q_id,
                 &q_text,
                 &recent_history,
                 knowledge_text,
                 &target_lang,
             ).await {
-                let _ = app_handle.emit("copilot:suggestion", &suggestion);
+                Ok(s) => s,
+                Err(err) => {
+                    eprintln!("Copilot backend query failed: {}. Generating contextual fallback.", err);
+                    suggester_guard.generate_smart_fallback(
+                        &q_id,
+                        &q_text,
+                        &recent_history,
+                        knowledge_text,
+                        &target_lang,
+                        &err.to_string(),
+                    )
+                }
+            };
 
-                let transcript_rec = TranscriptRecord {
-                    id: q_id,
-                    session_id: s_id,
-                    speaker: spk,
-                    timestamp_ms,
-                    src_text,
-                    tgt_text,
-                    is_question: true,
-                    suggested_answer: Some(suggestion.sample_answer),
-                };
-                let _ = db.insert_transcript(&transcript_rec);
-            }
+            let _ = app_handle.emit("copilot:suggestion", &suggestion);
+
+            let transcript_rec = TranscriptRecord {
+                id: q_id,
+                session_id: s_id,
+                speaker: spk,
+                timestamp_ms,
+                src_text,
+                tgt_text,
+                is_question: true,
+                suggested_answer: Some(suggestion.sample_answer),
+            };
+            let _ = db.insert_transcript(&transcript_rec);
         });
     } else {
         let transcript_rec = TranscriptRecord {
@@ -257,13 +270,26 @@ pub async fn ask_copilot_manual(
     let recent_history = state.get_recent_dialogue().await;
 
     let suggester = state.copilot_suggester.read().await;
-    let suggestion = suggester.generate_suggestion(
+    let suggestion = match suggester.generate_suggestion(
         &q_id,
         &question_text,
         &recent_history,
         knowledge_text,
         &tgt_lang,
-    ).await.map_err(|e| e.to_string())?;
+    ).await {
+        Ok(s) => s,
+        Err(err) => {
+            eprintln!("Manual Copilot query failed: {}. Generating contextual fallback.", err);
+            suggester.generate_smart_fallback(
+                &q_id,
+                &question_text,
+                &recent_history,
+                knowledge_text,
+                &tgt_lang,
+                &err.to_string(),
+            )
+        }
+    };
 
     let _ = app.emit("copilot:suggestion", &suggestion);
     Ok(suggestion)

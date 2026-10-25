@@ -77,9 +77,11 @@
 - **Contextual Knowledge Grounding**:
   - Retrieves active Knowledge Profile (Resume/CV, Product Battlecards, Meeting Agenda).
   - Rolling conversation buffer (last 10–15 turns).
-- **Asynchronous Suggestion Dispatch**:
+- **Asynchronous Suggestion Dispatch & Smart Fallbacks**:
   - Dispatches non-blocking query to the selected LLM.
-  - Emits real-time `copilot:suggestion` payload containing structured bullet-point talking points and a concise suggested answer.
+  - On LLM failure (e.g. unreachable local llama-server or network error), executes `generate_smart_fallback` to construct context-grounded architectural talking points, localized responses (EN, VI, JA, ZH), and status diagnostics without dropping the event.
+  - Emits real-time `copilot:suggestion` payload containing structured bullet-point talking points and a concise suggested answer to both HUD and Dashboard.
+  - Persists question records and suggested answers to SQLite.
 
 ### 5. Multi-Window Presentation (`src-tauri/src/overlay/` & `src-tauri/src/compose/`)
 - **Live Subtitles HUD**:

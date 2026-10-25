@@ -5,6 +5,15 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-10-25
+
+### Fixed
+- **Overlay Window Transparency & Scoped Glassmorphism**:
+  - Removed full-window native vibrancy (`NSVisualEffectMaterial::HudWindow`) and full-window blur in `src-tauri/src/overlay/mod.rs` which rendered an opaque dark-grey rectangular canvas (940x220) around the floating subtitle pill.
+  - Added strict `background: transparent !important;` to `<html>`, `<body>`, and `#root` in `overlay.html` and `compose.html`.
+  - Added `pointer-events-none` on overlay outer layout and `pointer-events-auto` on subtitle and copilot cards to allow click-through on transparent margins.
+  - Enhanced CSS glassmorphism styling (`backdrop-blur-2xl`, `bg-slate-950/90`, `border-slate-700/60`, `rounded-2xl`) cleanly scoped to floating cards.
+
 ## [0.1.0] - 2026-10-25
 
 ### Added

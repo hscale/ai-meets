@@ -79,8 +79,10 @@
 
 ### 5. Multi-Window Presentation (`src-tauri/src/overlay/` & `src-tauri/src/compose/`)
 - **Overlay HUD**:
-  - Floating transparent window with vibrancy effects (`HudWindow` on macOS, DWM blur on Windows).
-  - Click-through toggle via `set_ignore_cursor_events`.
+  - Floating transparent window with true non-rectangular background transparency.
+  - Avoids full-window native vibrancy/blur (e.g. `NSVisualEffectMaterial::HudWindow`) to prevent an opaque rectangular bounding box around floating pills.
+  - Applies CSS glassmorphism (`backdrop-filter: blur()`, `rounded-2xl`, translucent borders) scoped directly to the subtitle card and copilot drawer.
+  - Click-through toggle via `set_ignore_cursor_events` and pass-through cursor event routing on outer transparent margins.
 - **Type & Translate (Compose)**:
   - Global hotkey (`F2`) triggers a floating quick translation palette.
   - Auto-paste mechanism simulating platform clipboard copy and synthetic paste keystroke (`Cmd+V` / `Ctrl+V`).

@@ -27,16 +27,16 @@ export const SubtitleOverlay: React.FC = () => {
   const recentSubtitles = subtitles.slice(-2);
 
   return (
-    <div className="w-full h-screen p-2 flex flex-col justify-end pointer-events-auto select-none font-sans">
+    <div className="w-full h-screen p-2 flex flex-col justify-end pointer-events-none select-none font-sans bg-transparent">
       {/* Optional Floating Copilot Card Drawer */}
       {showCopilot && latestSuggestion && (
-        <div className="mb-2 max-w-xl mx-auto w-full transition-all duration-200">
+        <div className="mb-2 max-w-xl mx-auto w-full transition-all duration-200 pointer-events-auto">
           <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} compact />
         </div>
       )}
 
       {/* Main Subtitle Container */}
-      <div className="w-full max-w-3xl mx-auto bg-slate-950/85 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-3 shadow-2xl relative group">
+      <div className="w-full max-w-3xl mx-auto bg-slate-950/90 backdrop-blur-2xl border border-slate-700/60 rounded-2xl p-3.5 shadow-2xl relative group pointer-events-auto">
         {/* Top Control Bar (Draggable) */}
         <div
           data-tauri-drag-region

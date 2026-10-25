@@ -5,6 +5,21 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-10-26
+
+### Fixed
+- **AI Copilot Drawer Toggle on Subtitles HUD**:
+  - Fixed issue where clicking the `✨` button on the Subtitles HUD did not open the Copilot drawer when no suggestion had arrived yet. The drawer condition was previously bound to `{showCopilot && latestSuggestion}`, which caused the drawer to remain hidden if `latestSuggestion` was null.
+  - Sized the empty Copilot state cleanly in compact mode (`Listening for questions in meeting, or type below...`) and preserved the manual question input bar.
+  - Added an active state on the `✨` button (`bg-indigo-600 text-white`) and an explicit `X` close button on the drawer header.
+  - Added automatic drawer opening when incoming question suggestions arrive via `useEffect`.
+
+- **Graceful Offline Fallback & Diagnostics for AI Copilot**:
+  - Resolved silent suggestion failure when the local AI inference engine (e.g., `llama-server` on `127.0.0.1:8080`) is offline or unreachable.
+  - Implemented `generate_smart_fallback` in `CopilotSuggester` delivering domain-grounded bullet points, architectural talking points (e.g., dual-write, outbox pattern, strangler fig, zero-downtime migrations for microservices), and sample answers in English, Vietnamese, Japanese, and Chinese based on active Knowledge Profiles.
+  - Added clear offline diagnostic advisories (`[Offline Mode: AI backend at http://127.0.0.1:8080/v1 was unreachable]`) inside the sample answer so users immediately know their inference provider status while still receiving instant, actionable meeting talking points.
+  - Updated both automatic meeting speech transcription processing and manual question asking to utilize fallback generation on LLM failure, ensuring suggestions are always persisted to SQLite and emitted via `copilot:suggestion` to both the Subtitles HUD and Main Dashboard.
+
 ## [0.1.5] - 2026-10-26
 
 ### Refactored

@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { QuestionSuggestion } from "../types";
-import { Sparkles, Copy, Check, Send, Bot, HelpCircle } from "lucide-react";
+import { Sparkles, Copy, Check, Send, Bot, HelpCircle, X } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 
 interface CopilotCardProps {
   suggestion: QuestionSuggestion | null;
   onAskManual?: (question: string) => void;
+  onClose?: () => void;
   compact?: boolean;
 }
 
-export const CopilotCard: React.FC<CopilotCardProps> = ({ suggestion, onAskManual, compact = false }) => {
+export const CopilotCard: React.FC<CopilotCardProps> = ({
+  suggestion,
+  onAskManual,
+  onClose,
+  compact = false,
+}) => {
   const [copied, setCopied] = useState(false);
   const [manualInput, setManualInput] = useState("");
   const [isAsking, setIsAsking] = useState(false);
@@ -60,25 +66,36 @@ export const CopilotCard: React.FC<CopilotCardProps> = ({ suggestion, onAskManua
           </span>
         </div>
 
-        {suggestion && (
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5">
+          {suggestion && (
+            <>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-xs"
+                title="Copy answer to clipboard"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+              <button
+                onClick={handleAutoPaste}
+                className="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition text-xs"
+                title="Auto-paste into active app (Cmd+V)"
+              >
+                Auto-Paste
+              </button>
+            </>
+          )}
+          {onClose && (
             <button
-              onClick={handleCopy}
-              className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-xs"
-              title="Copy answer to clipboard"
+              onClick={onClose}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+              title="Close Copilot Drawer"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
+              <X className="w-3.5 h-3.5" />
             </button>
-            <button
-              onClick={handleAutoPaste}
-              className="px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition text-xs"
-              title="Auto-paste into active app (Cmd+V)"
-            >
-              Auto-Paste
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {suggestion ? (
@@ -120,6 +137,11 @@ export const CopilotCard: React.FC<CopilotCardProps> = ({ suggestion, onAskManua
               <p className="text-slate-100 italic leading-relaxed">"{suggestion.sample_answer}"</p>
             </div>
           )}
+        </div>
+      ) : compact ? (
+        <div className="py-2 text-center text-slate-400 flex items-center justify-center gap-2 text-xs">
+          <Bot className="w-4 h-4 text-indigo-400/80" />
+          <span>Listening for questions in meeting, or type below:</span>
         </div>
       ) : (
         <div className="py-6 text-center text-slate-400 space-y-2">

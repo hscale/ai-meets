@@ -17,8 +17,15 @@ export const SubtitleOverlay: React.FC = () => {
     askCopilotManual,
   } = useAppStore();
 
-  const [showCopilot, setShowCopilot] = useState(true);
+  const [showCopilot, setShowCopilot] = useState(false);
   const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
+
+  // Automatically open Copilot drawer when a question suggestion arrives
+  React.useEffect(() => {
+    if (latestSuggestion) {
+      setShowCopilot(true);
+    }
+  }, [latestSuggestion]);
 
   const fontClasses = {
     sm: "text-sm",
@@ -64,13 +71,18 @@ export const SubtitleOverlay: React.FC = () => {
       ref={containerRef}
       className="w-full flex flex-col select-none font-sans bg-transparent m-0 p-0 overflow-hidden"
     >
-      {/* Optional Floating Copilot Card Drawer */}
-      {showCopilot && latestSuggestion && (
+      {/* Floating Copilot Card Drawer */}
+      {showCopilot && (
         <div
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
           className="mb-1.5 w-full transition-all duration-200"
         >
-          <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} compact />
+          <CopilotCard
+            suggestion={latestSuggestion}
+            onAskManual={askCopilotManual}
+            onClose={() => setShowCopilot(false)}
+            compact
+          />
         </div>
       )}
 
@@ -117,10 +129,10 @@ export const SubtitleOverlay: React.FC = () => {
               onClick={() => setShowCopilot(!showCopilot)}
               className={`p-1.5 rounded-lg border transition cursor-pointer ${
                 showCopilot
-                  ? "bg-indigo-600/30 border-indigo-500/50 text-indigo-300"
+                  ? "bg-indigo-600 text-white border-indigo-500 shadow-sm shadow-indigo-600/30"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
               }`}
-              title="Toggle AI Copilot"
+              title={showCopilot ? "Hide AI Copilot Drawer" : "Show AI Copilot Drawer"}
             >
               <Sparkles className="w-3.5 h-3.5" />
             </button>

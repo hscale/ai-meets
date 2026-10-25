@@ -74,6 +74,7 @@ impl CopilotSuggester {
 
         let response_text = match self.config.provider.as_str() {
             "openai" => self.query_openai(&system_prompt, &user_prompt).await?,
+            "openai_compatible" => self.query_openai_compatible(&system_prompt, &user_prompt).await?,
             "anthropic" => self.query_anthropic(&system_prompt, &user_prompt).await?,
             "gemini" => self.query_gemini(&system_prompt, &user_prompt).await?,
             _ => self.query_local(&system_prompt, &user_prompt).await?,
@@ -156,6 +157,50 @@ impl CopilotSuggester {
             .json(&body)
             .send()
             .await?;
+        let json: serde_json::Value = res.json().await?;
+        let text = json["choices"][0]["message"]["content"]
+            .as_str()
+            .unwrap_or("")
+            .to_string();
+        Ok(text)
+    }
+
+    async fn query_openai_compatible(&self, system: &str, user: &str) -> Result<String> {
+        let endpoint_raw = self
+            .config
+            .custom_endpoint
+            .as_deref()
+            .unwrap_or("https://api.deepseek.com/v1");
+        let url = crate::translation::engine::normalize_openai_endpoint(endpoint_raw);
+
+        let api_key = self.config.custom_api_key.as_deref().unwrap_or_default();
+        let model = if self.config.model_name.is_empty() {
+            "deepseek-chat"
+        } else {
+            &self.config.model_name
+        };
+
+        let body = json!({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user}
+            ],
+            "temperature": 0.3
+        });
+
+        let mut req = self.client.post(&url);
+        if !api_key.is_empty() {
+            req = req.bearer_auth(api_key);
+        }
+
+        let res = req.json(&body).send().await?;
+        if !res.status().is_success() {
+            let status = res.status();
+            let err_body = res.text().await.unwrap_or_default();
+            return Err(anyhow::anyhow!("OpenAI-Compatible copilot query error (HTTP {}): {}", status, err_body));
+        }
+
         let json: serde_json::Value = res.json().await?;
         let text = json["choices"][0]["message"]["content"]
             .as_str()

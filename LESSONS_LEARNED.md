@@ -45,3 +45,19 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   1. **Tier 1 (Instant Heuristic Filter)**: Regex evaluation across multiple languages for interrogative syntax, 5W1H markers, and question marks (`< 1ms`).
   2. **Tier 2 (Context-Grounded Generation)**: Only when Tier 1 triggers does the background engine query the LLM with the active Knowledge Profile (Resume, Battlecard, Agenda) and recent turns.
 - **UI Decoupling**: Answer suggestions stream into a dedicated Copilot card that can be docked or collapsed independently from the subtitle stream, ensuring subtitle rendering remains sub-50ms.
+
+---
+
+## 5. Generic OpenAI-Compatible Backends & Multi-Provider Benchmarking
+
+### Observation
+- Many modern fast AI inference services (DeepSeek, Groq, OpenRouter, Together AI, Mistral, SiliconFlow, Ollama, vLLM) adhere to the OpenAI REST specification (`/chat/completions`), but users provide disparate endpoint URL formats (e.g., `https://api.deepseek.com/v1`, `https://api.deepseek.com/v1/`, or full paths ending in `/chat/completions`).
+- Users frequently ask which provider delivers the lowest latency for live meeting transcription and subtitle translation. Relying on marketing claims or static tables does not reflect real-time network conditions or geographical distances.
+
+### Solution
+- **Canonical Endpoint Normalization**:
+  Created `normalize_openai_endpoint` that cleans whitespace, strips trailing slashes, and idempotently appends `/chat/completions` if not already present. This prevents redundant double paths (e.g. `/chat/completions/chat/completions`) while allowing users to enter either the root host or the full completion URL.
+- **Isolated Benchmarking (`test_provider`)**:
+  Instead of mutating global state or requiring active meeting audio, the `test_provider` command instantiates a transient `TranslationEngine` configured on-the-fly, sends a standardized meeting phrase ("Welcome everyone to our project architecture review meeting."), and measures high-resolution round-trip latency (`Instant::now()`).
+- **Graceful Fault Reporting**:
+  Network timeouts, bad keys, or unreachable endpoints are captured inside `ProviderTestResult { success: false, error: Some(err) }` rather than rejecting IPC promises, enabling multi-provider comparisons to execute in parallel or sequentially without breaking UI state.

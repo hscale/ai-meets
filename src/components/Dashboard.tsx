@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/useAppStore";
 import { AudioVisualizer } from "./AudioVisualizer";
 import { CopilotCard } from "./CopilotCard";
+import { ProviderTestResult, TranslationConfig } from "../types";
 import {
   Mic,
   MicOff,
@@ -21,6 +23,9 @@ import {
   Eye,
   Lock,
   Unlock,
+  Zap,
+  AlertCircle,
+  BarChart2,
 } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
@@ -80,6 +85,26 @@ export const Dashboard: React.FC = () => {
   const [anthropicKey, setAnthropicKey] = useState(settings.anthropic_api_key || "");
   const [geminiKey, setGeminiKey] = useState(settings.gemini_api_key || "");
   const [modelName, setModelName] = useState(settings.model_name);
+  const [customEndpoint, setCustomEndpoint] = useState(settings.custom_endpoint || "https://api.deepseek.com/v1");
+  const [customApiKey, setCustomApiKey] = useState(settings.custom_api_key || "");
+
+  // Test & Benchmark Provider state
+  const [testingProvider, setTestingProvider] = useState(false);
+  const [testResult, setTestResult] = useState<ProviderTestResult | null>(null);
+
+  // Compare All Providers state
+  const [comparing, setComparing] = useState(false);
+  const [compareResults, setCompareResults] = useState<ProviderTestResult[]>([]);
+
+  const openAICompatiblePresets = [
+    { name: "DeepSeek", endpoint: "https://api.deepseek.com/v1", model: "deepseek-chat" },
+    { name: "Groq", endpoint: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" },
+    { name: "OpenRouter", endpoint: "https://openrouter.ai/api/v1", model: "meta-llama/llama-3.3-70b-instruct" },
+    { name: "Together AI", endpoint: "https://api.together.xyz/v1", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
+    { name: "Mistral", endpoint: "https://api.mistral.ai/v1", model: "mistral-small-latest" },
+    { name: "SiliconFlow", endpoint: "https://api.siliconflow.cn/v1", model: "deepseek-ai/DeepSeek-V3" },
+    { name: "Local vLLM / Ollama", endpoint: "http://localhost:11434/v1", model: "qwen2.5:7b" },
+  ];
 
   useEffect(() => {
     loadHistory();
@@ -132,8 +157,123 @@ export const Dashboard: React.FC = () => {
       anthropic_api_key: anthropicKey || undefined,
       gemini_api_key: geminiKey || undefined,
       model_name: modelName,
+      custom_endpoint: customEndpoint,
+      custom_api_key: customApiKey || undefined,
     });
     alert("Settings saved successfully!");
+  };
+
+  const handleTestProvider = async () => {
+    setTestingProvider(true);
+    setTestResult(null);
+    try {
+      const cfg: TranslationConfig = {
+        provider,
+        local_endpoint: localEndpoint,
+        openai_api_key: openaiKey || undefined,
+        anthropic_api_key: anthropicKey || undefined,
+        gemini_api_key: geminiKey || undefined,
+        model_name: modelName,
+        custom_endpoint: customEndpoint,
+        custom_api_key: customApiKey || undefined,
+      };
+      const result = await invoke<ProviderTestResult>("test_provider", {
+        clientConfig: cfg,
+        sampleText: "Welcome everyone to our project architecture review meeting.",
+        srcLang: "en",
+        tgtLang: "vi",
+      });
+      setTestResult(result);
+    } catch (err: any) {
+      setTestResult({
+        provider,
+        model: modelName,
+        latency_ms: 0,
+        translation: "",
+        success: false,
+        error: String(err),
+      });
+    } finally {
+      setTestingProvider(false);
+    }
+  };
+
+  const handleCompareAllProviders = async () => {
+    setComparing(true);
+    setCompareResults([]);
+    const testList: TranslationConfig[] = [];
+
+    // Local
+    testList.push({
+      provider: "local",
+      local_endpoint: localEndpoint,
+      model_name: "hy-mt2-1.8b",
+    });
+
+    // OpenAI Compatible
+    if (customEndpoint) {
+      testList.push({
+        provider: "openai_compatible",
+        local_endpoint: localEndpoint,
+        custom_endpoint: customEndpoint,
+        custom_api_key: customApiKey || undefined,
+        model_name: modelName || "deepseek-chat",
+      });
+    }
+
+    // OpenAI official
+    if (openaiKey) {
+      testList.push({
+        provider: "openai",
+        local_endpoint: localEndpoint,
+        openai_api_key: openaiKey,
+        model_name: "gpt-4o-mini",
+      });
+    }
+
+    // Anthropic
+    if (anthropicKey) {
+      testList.push({
+        provider: "anthropic",
+        local_endpoint: localEndpoint,
+        anthropic_api_key: anthropicKey,
+        model_name: "claude-3-haiku-20240307",
+      });
+    }
+
+    // Gemini
+    if (geminiKey) {
+      testList.push({
+        provider: "gemini",
+        local_endpoint: localEndpoint,
+        gemini_api_key: geminiKey,
+        model_name: "gemini-2.0-flash",
+      });
+    }
+
+    const results: ProviderTestResult[] = [];
+    for (const cfg of testList) {
+      try {
+        const res = await invoke<ProviderTestResult>("test_provider", {
+          clientConfig: cfg,
+          sampleText: "Welcome everyone to our project architecture review meeting.",
+          srcLang: "en",
+          tgtLang: "vi",
+        });
+        results.push(res);
+      } catch (e: any) {
+        results.push({
+          provider: cfg.provider,
+          model: cfg.model_name,
+          latency_ms: 0,
+          translation: "",
+          success: false,
+          error: String(e),
+        });
+      }
+    }
+    setCompareResults(results);
+    setComparing(false);
   };
 
   const handleExport = async (sessionId: string, format: "srt" | "md" | "csv") => {
@@ -719,11 +859,67 @@ export const Dashboard: React.FC = () => {
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
                 >
                   <option value="local">Local llama-server / Ollama (100% Privacy & Zero Cost)</option>
+                  <option value="openai_compatible">OpenAI API Compatible (DeepSeek, Groq, OpenRouter, etc.)</option>
                   <option value="openai">OpenAI (GPT-4o-mini / GPT-4o)</option>
                   <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet / Haiku)</option>
                   <option value="gemini">Google Gemini (Gemini 2.0 Flash / 1.5 Pro)</option>
                 </select>
               </div>
+
+              {provider === "openai_compatible" && (
+                <div className="space-y-3 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      API Base URL / Endpoint
+                    </label>
+                    <input
+                      type="text"
+                      value={customEndpoint}
+                      onChange={(e) => setCustomEndpoint(e.target.value)}
+                      placeholder="https://api.deepseek.com/v1"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                      Quick Provider Presets
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {openAICompatiblePresets.map((preset) => (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => {
+                            setCustomEndpoint(preset.endpoint);
+                            setModelName(preset.model);
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition ${
+                            customEndpoint === preset.endpoint
+                              ? "bg-indigo-600/30 text-indigo-300 border-indigo-500/50"
+                              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                          }`}
+                        >
+                          {preset.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Custom API Key (Bearer Token)
+                    </label>
+                    <input
+                      type="password"
+                      value={customApiKey}
+                      onChange={(e) => setCustomApiKey(e.target.value)}
+                      placeholder="sk-... (Leave empty for local endpoints)"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+              )}
 
               {provider === "local" && (
                 <div>
@@ -788,12 +984,152 @@ export const Dashboard: React.FC = () => {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="flex items-center justify-center gap-2 w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition"
-              >
-                <Save className="w-4 h-4" /> Save Configuration
-              </button>
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleTestProvider}
+                  disabled={testingProvider}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-indigo-300 font-semibold text-xs rounded-xl border border-slate-700 transition"
+                >
+                  <Zap className={`w-3.5 h-3.5 text-amber-400 ${testingProvider ? "animate-spin" : ""}`} />
+                  {testingProvider ? "Benchmarking Provider..." : "Test Active Provider"}
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition shadow-lg shadow-indigo-600/20"
+                >
+                  <Save className="w-4 h-4" /> Save Configuration
+                </button>
+              </div>
+
+              {/* Active Provider Test Result */}
+              {testResult && (
+                <div
+                  className={`p-3.5 rounded-xl border text-xs transition ${
+                    testResult.success
+                      ? "bg-slate-950/80 border-emerald-500/40 text-slate-200"
+                      : "bg-rose-950/30 border-rose-500/40 text-rose-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      {testResult.success ? (
+                        <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                      )}
+                      {testResult.provider} ({testResult.model})
+                    </span>
+                    {testResult.success && (
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          testResult.latency_ms < 500
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : testResult.latency_ms < 1500
+                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                            : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        }`}
+                      >
+                        ⚡ {testResult.latency_ms} ms
+                      </span>
+                    )}
+                  </div>
+                  {testResult.success ? (
+                    <div className="space-y-1">
+                      <div className="text-[11px] text-slate-400">
+                        Input: <span className="italic">"Welcome everyone to our project architecture review meeting."</span>
+                      </div>
+                      <div className="text-[11px] text-emerald-300 font-medium bg-emerald-950/30 p-2 rounded-lg border border-emerald-900/30">
+                        {testResult.translation}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-rose-300 mt-1">
+                      Error: {testResult.error || "Inference failed"}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Provider Comparison & Benchmark Card */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <BarChart2 className="w-4 h-4 text-indigo-400" />
+                    Multi-Provider Comparison & Benchmark
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Evaluate latency and translation fidelity side-by-side across all configured AI backends.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCompareAllProviders}
+                  disabled={comparing}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 disabled:opacity-50 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-medium transition"
+                >
+                  <BarChart2 className={`w-3.5 h-3.5 ${comparing ? "animate-pulse" : ""}`} />
+                  {comparing ? "Benchmarking All..." : "Compare Providers"}
+                </button>
+              </div>
+
+              {compareResults.length > 0 && (
+                <div className="space-y-2 pt-1">
+                  <div className="text-[11px] text-slate-400 font-medium">
+                    Benchmark Results ({compareResults.length} backends evaluated):
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {compareResults
+                      .slice()
+                      .sort((a, b) => (a.success ? a.latency_ms : 99999) - (b.success ? b.latency_ms : 99999))
+                      .map((res, idx) => (
+                        <div
+                          key={`${res.provider}-${res.model}-${idx}`}
+                          className={`p-3 rounded-xl border text-xs flex flex-col gap-1.5 transition ${
+                            res.success
+                              ? "bg-slate-950/70 border-slate-800 text-slate-200"
+                              : "bg-rose-950/20 border-rose-900/30 text-rose-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-200 flex items-center gap-1.5">
+                              <span className="text-[10px] text-slate-500 font-mono">#{idx + 1}</span>
+                              {res.provider}
+                              <span className="text-slate-400 font-mono text-[10px]">({res.model})</span>
+                            </span>
+                            {res.success ? (
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  res.latency_ms < 500
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                    : res.latency_ms < 1500
+                                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                                    : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                }`}
+                              >
+                                ⚡ {res.latency_ms} ms
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-rose-400 font-medium">Failed</span>
+                            )}
+                          </div>
+                          {res.success ? (
+                            <div className="text-[11px] text-slate-300 bg-slate-900/50 p-2 rounded-lg border border-slate-800/60 font-serif">
+                              "{res.translation}"
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-rose-400">
+                              {res.error || "Connection or auth error"}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           </form>
         )}

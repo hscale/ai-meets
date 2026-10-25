@@ -6,12 +6,14 @@ use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TranslationConfig {
-    pub provider: String, // "local", "openai", "anthropic", "gemini"
+    pub provider: String, // "local", "openai", "openai_compatible", "anthropic", "gemini"
     pub local_endpoint: String, // e.g. "http://127.0.0.1:8080/v1"
     pub openai_api_key: Option<String>,
     pub anthropic_api_key: Option<String>,
     pub gemini_api_key: Option<String>,
     pub model_name: String, // e.g. "hy-mt2-1.8b", "gpt-4o-mini", "claude-3-haiku", "gemini-2.0-flash"
+    pub custom_endpoint: Option<String>, // Base URL for OpenAI-compatible (e.g. "https://api.deepseek.com/v1")
+    pub custom_api_key: Option<String>,
 }
 
 impl Default for TranslationConfig {
@@ -23,7 +25,22 @@ impl Default for TranslationConfig {
             anthropic_api_key: None,
             gemini_api_key: None,
             model_name: "hy-mt2-1.8b".to_string(),
+            custom_endpoint: Some("https://api.deepseek.com/v1".to_string()),
+            custom_api_key: None,
         }
+    }
+}
+
+/// Normalizes an OpenAI-compatible endpoint URL to always end with `/chat/completions`.
+pub fn normalize_openai_endpoint(raw: &str) -> String {
+    let trimmed = raw.trim().trim_end_matches('/');
+    if trimmed.is_empty() {
+        return "https://api.deepseek.com/v1/chat/completions".to_string();
+    }
+    if trimmed.ends_with("/chat/completions") {
+        trimmed.to_string()
+    } else {
+        format!("{}/chat/completions", trimmed)
     }
 }
 
@@ -81,10 +98,56 @@ impl TranslationEngine {
 
         match self.config.provider.as_str() {
             "openai" => self.translate_openai(&system_prompt, &user_content).await,
+            "openai_compatible" => self.translate_openai_compatible(&system_prompt, &user_content).await,
             "anthropic" => self.translate_anthropic(&system_prompt, &user_content).await,
             "gemini" => self.translate_gemini(&system_prompt, &user_content).await,
             _ => self.translate_local(&system_prompt, &user_content).await,
         }
+    }
+
+    async fn translate_openai_compatible(&self, system_prompt: &str, text: &str) -> Result<String> {
+        let endpoint_raw = self
+            .config
+            .custom_endpoint
+            .as_deref()
+            .unwrap_or("https://api.deepseek.com/v1");
+        let url = normalize_openai_endpoint(endpoint_raw);
+
+        let api_key = self.config.custom_api_key.as_deref().unwrap_or_default();
+        let model = if self.config.model_name.is_empty() {
+            "deepseek-chat"
+        } else {
+            &self.config.model_name
+        };
+
+        let body = json!({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text}
+            ],
+            "temperature": 0.2
+        });
+
+        let mut req = self.client.post(&url);
+        if !api_key.is_empty() {
+            req = req.bearer_auth(api_key);
+        }
+
+        let res = req.json(&body).send().await?;
+        if !res.status().is_success() {
+            let status = res.status();
+            let err_body = res.text().await.unwrap_or_default();
+            return Err(anyhow::anyhow!("OpenAI-Compatible server error {}: {}", status, err_body));
+        }
+
+        let json: serde_json::Value = res.json().await?;
+        let output = json["choices"][0]["message"]["content"]
+            .as_str()
+            .unwrap_or(text)
+            .trim()
+            .to_string();
+        Ok(output)
     }
 
     async fn translate_local(&self, system_prompt: &str, text: &str) -> Result<String> {
@@ -185,5 +248,58 @@ impl TranslationEngine {
             .trim()
             .to_string();
         Ok(output)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_openai_endpoint() {
+        assert_eq!(
+            normalize_openai_endpoint("https://api.deepseek.com/v1"),
+            "https://api.deepseek.com/v1/chat/completions"
+        );
+        assert_eq!(
+            normalize_openai_endpoint("https://api.deepseek.com/v1/"),
+            "https://api.deepseek.com/v1/chat/completions"
+        );
+        assert_eq!(
+            normalize_openai_endpoint("https://api.groq.com/openai/v1/chat/completions"),
+            "https://api.groq.com/openai/v1/chat/completions"
+        );
+        assert_eq!(
+            normalize_openai_endpoint("http://localhost:11434/v1"),
+            "http://localhost:11434/v1/chat/completions"
+        );
+        assert_eq!(
+            normalize_openai_endpoint("   "),
+            "https://api.deepseek.com/v1/chat/completions"
+        );
+    }
+
+    #[test]
+    fn test_config_serialization() {
+        let cfg = TranslationConfig {
+            provider: "openai_compatible".to_string(),
+            local_endpoint: "http://127.0.0.1:8080/v1".to_string(),
+            openai_api_key: None,
+            anthropic_api_key: None,
+            gemini_api_key: None,
+            model_name: "deepseek-chat".to_string(),
+            custom_endpoint: Some("https://api.deepseek.com/v1".to_string()),
+            custom_api_key: Some("sk-test123".to_string()),
+        };
+
+        let serialized = serde_json::to_string(&cfg).expect("Serialize config");
+        assert!(serialized.contains("openai_compatible"));
+        assert!(serialized.contains("https://api.deepseek.com/v1"));
+        assert!(serialized.contains("sk-test123"));
+
+        let deserialized: TranslationConfig = serde_json::from_str(&serialized).expect("Deserialize config");
+        assert_eq!(deserialized.provider, "openai_compatible");
+        assert_eq!(deserialized.custom_endpoint, Some("https://api.deepseek.com/v1".to_string()));
+        assert_eq!(deserialized.custom_api_key, Some("sk-test123".to_string()));
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSAudioCaptureUsageDescription</key>
+    <string>AI Meets captures audio to display real-time meeting translations and suggestions. The audio never leaves your device.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>AI Meets listens to the microphone when chosen as the audio source.</string>
+</dict>
+</plist>

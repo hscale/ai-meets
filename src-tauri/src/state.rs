@@ -15,6 +15,7 @@ pub struct AppState {
     pub active_src_lang: Arc<Mutex<String>>,
     pub active_tgt_lang: Arc<Mutex<String>>,
     pub recent_dialogue: Arc<Mutex<Vec<String>>>,
+    pub is_overlay_locked: Arc<Mutex<bool>>,
 }
 
 impl AppState {
@@ -32,6 +33,7 @@ impl AppState {
             active_src_lang: Arc::new(Mutex::new("en".to_string())),
             active_tgt_lang: Arc::new(Mutex::new("vi".to_string())),
             recent_dialogue: Arc::new(Mutex::new(Vec::new())),
+            is_overlay_locked: Arc::new(Mutex::new(false)),
         }
     }
 

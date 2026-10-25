@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore } from "../store/useAppStore";
 import { CopilotCard } from "./CopilotCard";
 import { AudioVisualizer } from "./AudioVisualizer";
@@ -26,36 +27,53 @@ export const SubtitleOverlay: React.FC = () => {
 
   const recentSubtitles = subtitles.slice(-2);
 
+  const handleStartDrag = async (e: React.MouseEvent) => {
+    // Only drag on primary (left) button and not on interactive buttons/selectors
+    if (e.button === 0 && !(e.target as HTMLElement).closest("button, select, input, a")) {
+      try {
+        await getCurrentWindow().startDragging();
+      } catch (err) {
+        console.warn("Failed to drag overlay window:", err);
+      }
+    }
+  };
+
   return (
-    <div className="w-full h-screen p-2 flex flex-col justify-end pointer-events-none select-none font-sans bg-transparent">
+    <div className="w-full h-full p-2 flex flex-col justify-end select-none font-sans bg-transparent">
       {/* Optional Floating Copilot Card Drawer */}
       {showCopilot && latestSuggestion && (
-        <div className="mb-2 max-w-xl mx-auto w-full transition-all duration-200 pointer-events-auto">
+        <div className="mb-2 max-w-xl mx-auto w-full transition-all duration-200">
           <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} compact />
         </div>
       )}
 
       {/* Main Subtitle Container */}
-      <div className="w-full max-w-3xl mx-auto bg-slate-950/90 backdrop-blur-2xl border border-slate-700/60 rounded-2xl p-3.5 shadow-2xl relative group pointer-events-auto">
+      <div className="w-full max-w-3xl mx-auto bg-slate-950/90 backdrop-blur-2xl border border-slate-700/60 rounded-2xl p-3.5 shadow-2xl relative group">
         {/* Top Control Bar (Draggable) */}
         <div
-          data-tauri-drag-region
+          onMouseDown={handleStartDrag}
+          data-tauri-drag-region="deep"
           className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/60 cursor-move text-xs text-slate-400 select-none"
         >
-          <div className="flex items-center gap-2" data-tauri-drag-region>
+          <div className="flex items-center gap-2 pointer-events-none select-none">
             <Move className="w-3.5 h-3.5 text-slate-400" />
             <span className="font-semibold text-slate-200 tracking-wide">AI Meets</span>
             <AudioVisualizer level={audioLevel} active={status.is_recording} />
           </div>
 
-          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="flex items-center gap-1.5"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Font size picker */}
             <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800">
               {(["sm", "md", "lg"] as const).map((s) => (
                 <button
                   key={s}
+                  type="button"
                   onClick={() => setFontSize(s)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold transition ${
+                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold transition cursor-pointer ${
                     fontSize === s ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -66,8 +84,9 @@ export const SubtitleOverlay: React.FC = () => {
 
             {/* Copilot Drawer Toggle */}
             <button
+              type="button"
               onClick={() => setShowCopilot(!showCopilot)}
-              className={`p-1.5 rounded-lg border transition ${
+              className={`p-1.5 rounded-lg border transition cursor-pointer ${
                 showCopilot
                   ? "bg-indigo-600/30 border-indigo-500/50 text-indigo-300"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -79,13 +98,14 @@ export const SubtitleOverlay: React.FC = () => {
 
             {/* Click-through lock */}
             <button
+              type="button"
               onClick={() => setOverlayLocked(!overlayLocked)}
-              className={`p-1.5 rounded-lg border transition ${
+              className={`p-1.5 rounded-lg border transition cursor-pointer ${
                 overlayLocked
                   ? "bg-rose-500/20 border-rose-500/40 text-rose-300"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
               }`}
-              title={overlayLocked ? "Click-through is locked" : "Lock click-through"}
+              title={overlayLocked ? "Click-through is locked (Unlock from Dashboard or Menu)" : "Lock click-through"}
             >
               {overlayLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
             </button>

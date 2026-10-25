@@ -117,6 +117,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({ audioLevel: event.payload });
       });
 
+      await listen<boolean>("overlay:lock_changed", (event) => {
+        set({ overlayLocked: event.payload });
+      });
+
       await listen("session:stopped", () => {
         set((state) => ({
           status: { ...state.status, is_recording: false, session_id: null },

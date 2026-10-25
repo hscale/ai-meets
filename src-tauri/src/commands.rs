@@ -279,7 +279,9 @@ pub async fn set_overlay_visible(app: AppHandle, visible: bool) -> Result<(), St
 }
 
 #[tauri::command]
-pub async fn set_overlay_locked(app: AppHandle, locked: bool) -> Result<(), String> {
+pub async fn set_overlay_locked(app: AppHandle, state: State<'_, AppState>, locked: bool) -> Result<(), String> {
+    *state.is_overlay_locked.lock().await = locked;
+    let _ = app.emit("overlay:lock_changed", locked);
     OverlayManager::set_click_through(&app, locked).map_err(|e| e.to_string())
 }
 

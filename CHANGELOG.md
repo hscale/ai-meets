@@ -5,6 +5,16 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-10-25
+
+### Fixed
+- **Overlay Window Dragging & Interactive Controls**:
+  - Implemented explicit programmatic dragging via `getCurrentWindow().startDragging()` on `onMouseDown` on the overlay header bar, ensuring smooth window movement when clicking on text, badges, or icons.
+  - Added `data-tauri-drag-region="deep"` and set `pointer-events-none select-none` on decorative header elements.
+  - Fixed button click handling on the overlay toolbar (font size switcher, Copilot toggle, Lock button) by isolating event propagation (`onMouseDown`/`onClick` stopPropagation) and removing conflicting drag flags.
+  - Removed root `pointer-events-none` from `SubtitleOverlay` and `ComposePopup` which previously hindered WebKit mouse event hit-testing.
+  - Added global click-through state synchronization (`is_overlay_locked` in `AppState` + `overlay:lock_changed` IPC event) with toggle support in the System Tray menu and Main Dashboard.
+
 ## [0.1.1] - 2026-10-25
 
 ### Fixed

@@ -10,6 +10,7 @@ import {
   GlossaryEntry,
   SessionRecord,
   TranslationConfig,
+  AppPreferences,
 } from "../types";
 
 interface AppState {
@@ -34,6 +35,7 @@ interface AppState {
   isCopilotSplit: boolean;
   transcriptionMode: "bilingual" | "single";
   copilotMode: "bilingual" | "single";
+  fontSize: "sm" | "md" | "lg";
 
   // Actions
   init: () => Promise<void>;
@@ -43,6 +45,7 @@ interface AppState {
   setLanguages: (src: string, tgt: string) => void;
   setTranscriptionMode: (mode: "bilingual" | "single") => void;
   setCopilotMode: (mode: "bilingual" | "single") => void;
+  setFontSize: (size: "sm" | "md" | "lg") => void;
   updateSubtitle: (id: string, srcText: string, tgtText: string) => Promise<void>;
   simulateSpeech: (speaker: string, text: string) => Promise<void>;
   askCopilotManual: (question: string) => Promise<void>;
@@ -94,32 +97,38 @@ export const useAppStore = create<AppState>((set, get) => ({
   isCopilotSplit: true,
   transcriptionMode: "bilingual",
   copilotMode: "bilingual",
+  fontSize: "md",
 
   init: async () => {
     try {
-      const [sources, settings, status, profiles, glossary, isSplit] = await Promise.all([
+      const [sources, settings, status, profiles, glossary, prefs] = await Promise.all([
         invoke<AudioDeviceInfo[]>("list_audio_sources").catch(() => []),
         invoke<TranslationConfig>("get_settings").catch(() => get().settings),
         invoke<AppStatus>("get_app_status").catch(() => get().status),
         invoke<KnowledgeProfile[]>("list_profiles").catch(() => []),
         invoke<GlossaryEntry[]>("list_glossary").catch(() => []),
-        invoke<boolean>("get_copilot_split_mode").catch(() => true),
+        invoke<AppPreferences>("get_app_preferences").catch(() => null),
       ]);
 
       const activeProfile = profiles.find((p) => p.is_active) || null;
-      const defaultSource = sources.find((s) => s.is_default)?.id || sources[0]?.id || "system_audio";
+      const preferredSource = prefs?.audio_source && sources.some((s) => s.id === prefs.audio_source)
+        ? prefs.audio_source
+        : sources.find((s) => s.is_default)?.id || sources[0]?.id || "system_audio";
 
       set({
         audioSources: sources,
-        selectedAudioSource: defaultSource,
+        selectedAudioSource: preferredSource,
         settings,
         status,
         profiles,
         activeProfile,
         glossary,
-        isCopilotSplit: isSplit ?? true,
-        srcLang: status.src_lang || "en",
-        tgtLang: status.tgt_lang || "vi",
+        isCopilotSplit: prefs?.is_copilot_split ?? true,
+        srcLang: prefs?.src_lang || status.src_lang || "en",
+        tgtLang: prefs?.tgt_lang || status.tgt_lang || "vi",
+        transcriptionMode: (prefs?.transcription_mode as any) || "bilingual",
+        copilotMode: (prefs?.copilot_mode as any) || "bilingual",
+        fontSize: (prefs?.font_size as any) || "md",
       });
 
       // Listen for backend real-time events
@@ -202,10 +211,85 @@ export const useAppStore = create<AppState>((set, get) => ({
     await get().loadHistory();
   },
 
-  setSelectedAudioSource: (id: string) => set({ selectedAudioSource: id }),
-  setLanguages: (src: string, tgt: string) => set({ srcLang: src, tgtLang: tgt }),
-  setTranscriptionMode: (mode: "bilingual" | "single") => set({ transcriptionMode: mode }),
-  setCopilotMode: (mode: "bilingual" | "single") => set({ copilotMode: mode }),
+  setSelectedAudioSource: (id: string) => {
+    set({ selectedAudioSource: id });
+    const s = get();
+    invoke("update_app_preferences", {
+      preferences: {
+        src_lang: s.srcLang,
+        tgt_lang: s.tgtLang,
+        audio_source: id,
+        transcription_mode: s.transcriptionMode,
+        copilot_mode: s.copilotMode,
+        font_size: s.fontSize,
+        is_copilot_split: s.isCopilotSplit,
+      },
+    }).catch(console.error);
+  },
+
+  setLanguages: (src: string, tgt: string) => {
+    set({ srcLang: src, tgtLang: tgt });
+    const s = get();
+    invoke("update_app_preferences", {
+      preferences: {
+        src_lang: src,
+        tgt_lang: tgt,
+        audio_source: s.selectedAudioSource,
+        transcription_mode: s.transcriptionMode,
+        copilot_mode: s.copilotMode,
+        font_size: s.fontSize,
+        is_copilot_split: s.isCopilotSplit,
+      },
+    }).catch(console.error);
+  },
+
+  setTranscriptionMode: (mode: "bilingual" | "single") => {
+    set({ transcriptionMode: mode });
+    const s = get();
+    invoke("update_app_preferences", {
+      preferences: {
+        src_lang: s.srcLang,
+        tgt_lang: s.tgtLang,
+        audio_source: s.selectedAudioSource,
+        transcription_mode: mode,
+        copilot_mode: s.copilotMode,
+        font_size: s.fontSize,
+        is_copilot_split: s.isCopilotSplit,
+      },
+    }).catch(console.error);
+  },
+
+  setCopilotMode: (mode: "bilingual" | "single") => {
+    set({ copilotMode: mode });
+    const s = get();
+    invoke("update_app_preferences", {
+      preferences: {
+        src_lang: s.srcLang,
+        tgt_lang: s.tgtLang,
+        audio_source: s.selectedAudioSource,
+        transcription_mode: s.transcriptionMode,
+        copilot_mode: mode,
+        font_size: s.fontSize,
+        is_copilot_split: s.isCopilotSplit,
+      },
+    }).catch(console.error);
+  },
+
+  setFontSize: (size: "sm" | "md" | "lg") => {
+    set({ fontSize: size });
+    const s = get();
+    invoke("update_app_preferences", {
+      preferences: {
+        src_lang: s.srcLang,
+        tgt_lang: s.tgtLang,
+        audio_source: s.selectedAudioSource,
+        transcription_mode: s.transcriptionMode,
+        copilot_mode: s.copilotMode,
+        font_size: size,
+        is_copilot_split: s.isCopilotSplit,
+      },
+    }).catch(console.error);
+  },
 
   updateSubtitle: async (id: string, srcText: string, tgtText: string) => {
     try {

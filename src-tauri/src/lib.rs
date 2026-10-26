@@ -82,6 +82,8 @@ pub fn run() {
             commands::delete_glossary_entry,
             commands::get_settings,
             commands::update_settings,
+            commands::get_app_preferences,
+            commands::update_app_preferences,
             commands::test_provider,
         ])
         .run(tauri::generate_context!())

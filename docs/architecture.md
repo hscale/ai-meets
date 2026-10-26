@@ -101,10 +101,12 @@
   - Global hotkey (`F2`) triggers a floating quick translation palette.
   - Auto-paste mechanism simulating platform clipboard copy and synthetic paste keystroke (`Cmd+V` / `Ctrl+V`).
 
-### 6. Storage & Database (`src-tauri/src/db.rs`)
+### 6. Storage, Settings & Persistence (`src-tauri/src/db.rs`)
 - SQLite schema with foreign-key cascading:
   - `sessions`: Session metadata, duration, language pairs, audio device.
   - `transcripts`: Timestamped speech records, original and translated text, question flags, and generated suggestions.
   - `glossary`: Custom dictionary mapping with unique match keys.
   - `profiles`: User knowledge bases with active profile state.
-  - `app_settings`: Persistent key-value configuration.
+  - `app_settings`: Persistent key-value configuration (`translation_config`, `app_preferences`).
+- **Cold-Start Hydration**: `AppState::new(db)` hydrates `TranslationConfig` and `AppPreferences` synchronously from SQLite on boot, ensuring engines initialize with active credentials before user interactions.
+- **Asynchronous Two-Way Store Sync**: Frontend Zustand store synchronizes SQLite settings into React form state via reactive `useEffect` hooks, eliminating blank form states and preventing credential loss upon app reboots.

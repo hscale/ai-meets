@@ -36,10 +36,11 @@ export const SubtitleOverlay: React.FC = () => {
     toggleCopilotVisible,
     setCopilotSplit,
     toggleCopilotSplit,
+    fontSize,
+    setFontSize,
   } = useAppStore();
 
   const [showCopilot, setShowCopilot] = useState(false);
-  const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
 
   // Inline editing state for HUD
   const [editingId, setEditingId] = useState<string | null>(null);

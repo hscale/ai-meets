@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Shortened `Live Meeting Dialogue Stream` to `Live Dialogue` with an emerald status pip, paired with compact segmented controls `[Bilingual | Single]` and a mono turn counter (`0 turns`), eliminating text collisions and awkward wrapping.
 - **Linear-Style Sidebar & Unified Studio Dashboard**:
   - Transformed the sidebar into a Linear-inspired workspace navigation with subtle active indicators (`bg-white/[0.08] text-white`), clean logo glyph (`Radio` + `AI Meets` + `v0.2`), and compact hardware dock.
+  - **Sidebar Navigation Alignment Fix**: Standardized sidebar width to `w-64`, added explicit `text-left` and `shrink-0` on nav items, and simplified `Knowledge Profiles (CV/FAQ)` to `Knowledge Profiles` to eliminate multiline text wrapping and centered text misalignment.
   - Aligned Knowledge Profiles, Custom Glossary, Meeting History, and Settings tabs with the studio zinc/monochrome theme.
 
 ## [0.2.0] - 2026-10-26

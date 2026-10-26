@@ -617,6 +617,7 @@ export const Dashboard: React.FC = () => {
                 disabled={status.is_recording}
                 className="bg-transparent text-xs text-zinc-200 focus:outline-none py-1 px-1 cursor-pointer"
               >
+                <option value="auto">AUTO</option>
                 <option value="en">EN</option>
                 <option value="vi">VI</option>
                 <option value="ja">JA</option>
@@ -1225,8 +1226,9 @@ export const Dashboard: React.FC = () => {
                     value={srcLang}
                     onChange={(e) => setLanguages(e.target.value, tgtLang)}
                     disabled={status.is_recording}
-                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none cursor-pointer"
                   >
+                    <option value="auto">Auto-Detect (Multilingual / Tự động)</option>
                     <option value="en">English (US/UK)</option>
                     <option value="vi">Vietnamese (Tiếng Việt)</option>
                     <option value="ja">Japanese (日本語)</option>

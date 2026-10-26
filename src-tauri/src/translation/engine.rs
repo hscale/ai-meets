@@ -73,11 +73,20 @@ impl TranslationEngine {
             }
         }
 
-        let mut system = format!(
-            "You are a professional real-time meeting translator. Translate the text from {} to {}. \
-             Output ONLY the direct translated text with proper punctuation and natural phrasing. Do NOT add notes, explanations, or quotes.",
-            src_lang, tgt_lang
-        );
+        let mut system = if src_lang.eq_ignore_ascii_case("auto") {
+            format!(
+                "You are a professional real-time meeting translator. Automatically detect the spoken source language (multilingual meeting speech) and translate the text accurately to {}. \
+                 If the source text is already in {}, polish and retain the phrasing naturally without translating to another language. \
+                 Output ONLY the direct translated text with proper punctuation and natural phrasing. Do NOT add notes, explanations, or quotes.",
+                tgt_lang, tgt_lang
+            )
+        } else {
+            format!(
+                "You are a professional real-time meeting translator. Translate the text from {} to {}. \
+                 Output ONLY the direct translated text with proper punctuation and natural phrasing. Do NOT add notes, explanations, or quotes.",
+                src_lang, tgt_lang
+            )
+        };
 
         if !glossary_constraints.is_empty() {
             system.push_str(&format!("\nUse the following glossary terminology mapping:{}\n", glossary_constraints));
@@ -90,7 +99,7 @@ impl TranslationEngine {
         if src_text.trim().is_empty() {
             return Ok(String::new());
         }
-        if src_lang.eq_ignore_ascii_case(tgt_lang) {
+        if !src_lang.eq_ignore_ascii_case("auto") && src_lang.eq_ignore_ascii_case(tgt_lang) {
             return Ok(src_text.to_string());
         }
 
@@ -301,5 +310,20 @@ mod tests {
         assert_eq!(deserialized.provider, "openai_compatible");
         assert_eq!(deserialized.custom_endpoint, Some("https://api.deepseek.com/v1".to_string()));
         assert_eq!(deserialized.custom_api_key, Some("sk-test123".to_string()));
+    }
+
+    #[test]
+    fn test_build_prompt_auto_detect() {
+        let (system_prompt, text) = TranslationEngine::build_prompt(
+            "Hello team, how is the microservices migration going?",
+            "auto",
+            "vi",
+            &[("microservices".to_string(), "kiến trúc microservices".to_string())],
+        );
+
+        assert!(system_prompt.contains("Automatically detect the spoken source language"));
+        assert!(system_prompt.contains("accurately to vi"));
+        assert!(system_prompt.contains("\"microservices\" translates to \"kiến trúc microservices\""));
+        assert_eq!(text, "Hello team, how is the microservices migration going?");
     }
 }

@@ -97,6 +97,7 @@ export const ComposePopup: React.FC = () => {
               onChange={(e) => setSrcLang(e.target.value)}
               className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none"
             >
+              <option value="auto">Auto-Detect</option>
               <option value="vi">Vietnamese</option>
               <option value="en">English</option>
               <option value="ja">Japanese</option>

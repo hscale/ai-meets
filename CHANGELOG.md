@@ -5,6 +5,18 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-10-26
+
+### Added & Enhanced
+- **Multilingual Source Language Auto-Detection**:
+  - Added `Auto-Detect` option (`auto`) to the `Spoken Meeting Language (Source)` selector across the top header toolbar, Settings & Preferences tab, and Type & Translate popup (`ComposePopup`).
+  - Updated `TranslationEngine::build_prompt` in `src-tauri/src/translation/engine.rs` to instruct LLM/MT models to automatically detect the spoken source language across rapid multilingual dialogue and translate accurately to the target language, while keeping native phrases intact when already in the target language.
+  - Added unit test `test_build_prompt_auto_detect` verifying system prompt generation and glossary constraint injection.
+- **Cross-Platform Multi-OS Release Tooling & CI Automation**:
+  - **Release Script (`scripts/build_release.sh`)**: Created an automated multi-target release packager supporting local bundle creation, checksum generation (`SHA256SUMS.txt`), and automated GitHub tagging & dispatch (`--push`, `--gh-release`).
+  - **GitHub Actions Multi-OS Matrix (`.github/workflows/release.yml`)**: Implemented automated CI/CD release workflow compiling for macOS (`macos-latest` -> `.dmg`, `.app`), Windows (`windows-latest` -> `.msi`, `.exe`), and Linux (`ubuntu-22.04` -> `.deb`, `.AppImage`) in parallel on tag push (`v*`) or manual `workflow_dispatch`.
+  - Bumped project version to `0.2.2` in `package.json`, `Cargo.toml`, and `tauri.conf.json`.
+
 ## [0.2.1] - 2026-10-26
 
 ### Refactored & Enhanced

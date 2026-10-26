@@ -1,6 +1,6 @@
 [package]
 name = "ai-meets"
-version = "0.1.0"
+version = "0.2.2"
 description = "AI Meets: Real-Time Meeting Translator & Copilot"
 authors = ["AI Meets Team"]
 edition = "2021"

@@ -91,6 +91,7 @@ pub fn run() {
 }
 
 fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    let toggle_meeting_item = MenuItem::with_id(app, "toggle_meeting", "Start / Stop Meeting", true, None::<&str>)?;
     let toggle_overlay_item = MenuItem::with_id(app, "toggle_overlay", "Toggle Live Subtitles", true, None::<&str>)?;
     let toggle_copilot_item = MenuItem::with_id(app, "toggle_copilot", "Toggle AI Copilot Window", true, None::<&str>)?;
     let toggle_lock_item = MenuItem::with_id(app, "toggle_lock", "Lock Click-Through", true, None::<&str>)?;
@@ -102,6 +103,7 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         app,
         &[
             &open_main_item,
+            &toggle_meeting_item,
             &toggle_overlay_item,
             &toggle_copilot_item,
             &toggle_lock_item,
@@ -119,6 +121,27 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     let _ = win.show();
                     let _ = win.set_focus();
                 }
+            }
+            "toggle_meeting" => {
+                let app_handle = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    let state = app_handle.state::<AppState>();
+                    let is_recording = state.active_session_id.lock().await.is_some();
+                    if is_recording {
+                        let _ = commands::stop_session(app_handle.clone(), state).await;
+                    } else {
+                        let src_lang = state.active_src_lang.lock().await.clone();
+                        let tgt_lang = state.active_tgt_lang.lock().await.clone();
+                        let _ = commands::start_session(
+                            app_handle.clone(),
+                            state,
+                            "Tray Meeting".to_string(),
+                            src_lang,
+                            tgt_lang,
+                            "aggregate_device".to_string(),
+                        ).await;
+                    }
+                });
             }
             "toggle_overlay" => {
                 if let Some(win) = app.get_webview_window("overlay") {

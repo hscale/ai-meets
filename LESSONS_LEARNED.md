@@ -25,12 +25,12 @@ Tauri v2 allows defining multiple window declarations in `tauri.conf.json` (`mai
 
 ---
 
-## 3. Reverse-Engineering Insights from AI Translator (`aitranslator.vn`)
+## 3. Real-Time Streaming Cadence & Multilingual MT Optimization
 
 ### Observation
-Decompiling `meeting-translator`, `asr-worker`, and `llama-server` revealed:
-- **Streaming Cadence**: Using fixed chunk sizes produces unnatural cuts. Implementing a sliding window with cadence factors (`min_cadence_ms: 200`, `max_cadence_ms: 1200`) and VAD-based silence boundaries stabilizes live text.
-- **Model Selection**: Tencent's `Hunyuan-MT2 1.8B` (`Q8_0` for Standard, `Q4_K_M` for Lite) delivers the highest accuracy for Asian languages (Vietnamese, Japanese, Chinese, Korean) with memory footprints under 2 GB.
+In live meeting transcription and subtitle translation across rapid dialogue:
+- **Streaming Cadence**: Using fixed chunk sizes produces unnatural cuts and fragmented sentences. Implementing a sliding window with cadence factors (`min_cadence_ms: 200`, `max_cadence_ms: 1200`) and VAD-based silence boundaries stabilizes live text delivery.
+- **Model Selection**: Compact transformer architectures such as Tencent's `Hunyuan-MT2 1.8B` (`Q8_0` for Standard, `Q4_K_M` for Lite) deliver state-of-the-art accuracy for Asian languages (Vietnamese, Japanese, Chinese, Korean) with memory footprints under 2 GB.
 - **In-Context Glossary Prompting**: Rather than fine-tuning or constrained decoding, matching local terms and injecting `"Term" translates to "Target"` into the prompt is fast, resilient, and requires zero retraining.
 
 ---

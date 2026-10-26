@@ -373,6 +373,46 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Prominent Primary Meeting Control in Sidebar */}
+          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 space-y-2.5 shadow-md">
+            <button
+              type="button"
+              onClick={handleStartStop}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs transition shadow-lg cursor-pointer ${
+                status.is_recording
+                  ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30 animate-pulse"
+                  : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 hover:scale-[1.02]"
+              }`}
+            >
+              {status.is_recording ? (
+                <>
+                  <MicOff className="w-4 h-4" />
+                  <span>Stop Meeting</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4 animate-bounce" />
+                  <span>Start Meeting</span>
+                </>
+              )}
+            </button>
+            <div className="flex items-center justify-between text-[10px] text-slate-400 px-1 font-mono">
+              <span className="flex items-center gap-1.5">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    status.is_recording ? "bg-rose-400 animate-ping" : "bg-emerald-400"
+                  }`}
+                />
+                <span className="text-slate-300 font-sans font-medium">
+                  {status.is_recording ? "Recording..." : "System Ready"}
+                </span>
+              </span>
+              <span className="text-slate-400">
+                {srcLang.toUpperCase()} → {tgtLang.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab("live")}
@@ -593,15 +633,17 @@ export const Dashboard: React.FC = () => {
           </div>
 
           <button
+            type="button"
             onClick={handleStartStop}
-            className={`flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-sm transition shadow-lg ${
+            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm transition shadow-xl cursor-pointer ${
               status.is_recording
-                ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30 animate-pulse"
-                : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
+                ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/40 animate-pulse"
+                : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/40 hover:scale-105"
             }`}
+            title={status.is_recording ? "Click to stop recording session" : "Click to start real-time meeting transcription"}
           >
             {status.is_recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-            {status.is_recording ? "Stop Meeting" : "Start Meeting"}
+            <span>{status.is_recording ? "Stop Meeting" : "Start Meeting"}</span>
           </button>
         </header>
 
@@ -791,11 +833,29 @@ export const Dashboard: React.FC = () => {
                     );
                   })
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-2">
-                    <Mic className="w-8 h-8 opacity-40" />
-                    <p className="text-xs">
-                      Click "Start Meeting" or use the Speech Simulation tool below to test live translation!
-                    </p>
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 py-16 px-4">
+                    <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner">
+                      <Mic className="w-8 h-8 text-emerald-400 animate-pulse" />
+                    </div>
+                    <div className="text-center max-w-sm space-y-1.5">
+                      <h3 className="text-base font-bold text-slate-100">Ready to Transcribe & Assist</h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Click below to start capturing audio from your selected microphone and meeting audio stream in real time.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleStartStop}
+                      className="flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/30 transition hover:scale-105 cursor-pointer"
+                    >
+                      <Mic className="w-4 h-4" />
+                      Start Meeting Now
+                    </button>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                      <span>{srcLang.toUpperCase()} → {tgtLang.toUpperCase()}</span>
+                      <span>•</span>
+                      <span>Device: {audioSources.find((s) => s.id === selectedAudioSource)?.name || "System Default"}</span>
+                    </div>
                   </div>
                 )}
               </div>

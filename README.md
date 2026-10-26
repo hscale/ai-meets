@@ -2,7 +2,7 @@
 
 **AI Meets** is a high-performance, cross-platform desktop application designed for real-time meeting transcription, bidirectional translation, and **intelligent live question answering (Meeting & Interview Copilot)**. 
 
-Reverse-engineered and elevated from `AI Translator` (`aitranslator.vn`), AI Meets runs with a native **Tauri v2 (Rust)** core, **React 19** frontend, and a **Hybrid AI engine** supporting both 100% private local models (`llama.cpp`, `whisper.cpp`) and frontier cloud models (OpenAI, Anthropic Claude, Google Gemini).
+Built with a native **Tauri v2 (Rust)** core, **React 19** frontend, and a **Hybrid AI engine**, AI Meets supports both 100% private local models (`llama.cpp`, `whisper.cpp`) and frontier cloud models (OpenAI, Anthropic Claude, Google Gemini).
 
 ---
 

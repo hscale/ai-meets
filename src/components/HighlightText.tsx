@@ -41,7 +41,7 @@ export const HighlightText: React.FC<HighlightTextProps> = ({
         return (
           <span
             key={`${keyPrefix}-kw-${i}`}
-            className="text-amber-300 font-semibold bg-amber-500/15 px-1 py-0.2 rounded border border-amber-500/30"
+            className="text-amber-200 font-medium bg-amber-400/[0.1] px-1 py-0.2 rounded border border-amber-400/20"
           >
             {sub}
           </span>
@@ -59,7 +59,7 @@ export const HighlightText: React.FC<HighlightTextProps> = ({
           return (
             <mark
               key={`bold-${idx}`}
-              className="bg-indigo-500/25 text-indigo-200 font-bold px-1.5 py-0.5 rounded border border-indigo-500/40 not-italic inline-block my-0.5"
+              className="bg-white/[0.08] text-white font-semibold px-1.5 py-0.5 rounded border border-white/[0.12] not-italic inline-block my-0.5"
             >
               {content}
             </mark>

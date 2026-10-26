@@ -5,6 +5,23 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-10-26
+
+### Refactored & Enhanced
+- **Eliminated Cliché "AI Slop" Aesthetics for Studio Linear / Raycast Polish**:
+  - Replaced purple/indigo gradients (`from-indigo-600 to-violet-500`), bouncing emojis, cartoon sparkles, and neon glowing shadow halos with refined Linear-grade dark obsidian/zinc studio aesthetic (`#0B0C10` background, subtle hairline borders `border-white/[0.08]`, and hardware-grade LED audio visualizers).
+  - **Refined Keyword Highlighting**: Replaced loud purple mark backgrounds in `HighlightText.tsx` with subtle, elegant amber-tinted pills (`bg-amber-400/[0.1] text-amber-200 border-amber-400/20`) and concept highlights (`bg-white/[0.08] text-white border-white/[0.12]`).
+  - **Glassmorphic AI Copilot HUD**: Redesigned `CopilotCard.tsx` and `CopilotOverlayWindow.tsx` with dark zinc glassmorphism (`bg-zinc-950/95 border border-white/[0.08] shadow-2xl`), mono keyword pills, crisp segmented `[Bilingual | Single]` switch, and elegant quote cards.
+  - **Cinematic Subtitles HUD**: Redesigned `SubtitleOverlay.tsx` with cinematic `bg-black/85 backdrop-blur-2xl border border-white/[0.1]`, crisp segmented mode and font-size selectors, and clean action buttons.
+- **Fixed Header Horizontal Overflow & Record Button Visibility**:
+  - Redesigned the top header toolbar into a responsive, non-overflowing macOS studio layout (`h-14 bg-zinc-950/80 border-b border-white/[0.08]`).
+  - Compacted the title input, audio device selector, and `EN → VI` language pills into a tight flex row, ensuring the authoritative Studio Record button is always visible and never pushed off-screen.
+- **Resolved Live Dialogue Stream Header Text Collision**:
+  - Shortened `Live Meeting Dialogue Stream` to `Live Dialogue` with an emerald status pip, paired with compact segmented controls `[Bilingual | Single]` and a mono turn counter (`0 turns`), eliminating text collisions and awkward wrapping.
+- **Linear-Style Sidebar & Unified Studio Dashboard**:
+  - Transformed the sidebar into a Linear-inspired workspace navigation with subtle active indicators (`bg-white/[0.08] text-white`), clean logo glyph (`Radio` + `AI Meets` + `v0.2`), and compact hardware dock.
+  - Aligned Knowledge Profiles, Custom Glossary, Meeting History, and Settings tabs with the studio zinc/monochrome theme.
+
 ## [0.2.0] - 2026-10-26
 
 ### Enhanced & Public-Ready

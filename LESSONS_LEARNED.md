@@ -161,3 +161,18 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   Updated `AppState::new(db)` in `src-tauri/src/state.rs` to read `translation_config` and `app_preferences` synchronously from the database upon process boot. This ensures `TranslationEngine` and `CopilotSuggester` have valid user configurations before any network calls or audio captures begin.
 - **Centralized Settings UI**:
   Consolidated language configuration, audio device preferences, display modes, and AI providers into a single, comprehensive **Settings & Preferences** tab with live auto-persisting indicators and save confirmation feedback.
+
+---
+
+## 11. Desktop Studio UI/UX: Eliminating "AI Slop" & Responsive Multi-Panel Layouts
+
+### Observation
+- **Aesthetic Fatigue & "AI Slop"**: Early iterations of AI interfaces relied heavily on loud purple/violet gradients (`from-indigo-600 to-violet-500`), bouncing emojis (`animate-bounce`), neon glowing shadow halos, and cartoonish badges. In practice, this degrades perceived product trust and creates visual fatigue during long meetings.
+- **Breakpoint Collapses on Desktop**: Standard web responsive defaults (e.g. Tailwind's `lg:grid-cols-3` which requires `min-width: 1024px`) can fail in desktop apps with sidebars (e.g. 1020px standard window minus 240px sidebar yields 780px viewport), collapsing panels into a single vertical column and hiding simulator inputs.
+- **Horizontal Flex Overflow**: Placing unbounded text inputs alongside multiple native `<select>` dropdowns in a top toolbar can push primary call-to-action buttons (like `Start Meeting`) off-screen on the right edge of narrower windows.
+
+### Solution
+- **Studio Obsidian/Zinc Design System**: Standardized on a high-end monochrome dark palette (`#0B0C10` background, zinc panels, subtle hairline borders `border-white/[0.08]`, hardware-grade LED audio meters, and warm amber keyword pills).
+- **Golden Ratio Desktop Columns**: Used `md:grid-cols-5` with `md:col-span-3` (60% Live Dialogue) and `md:col-span-2` (40% Copilot) to maintain clean side-by-side layout across all desktop window dimensions.
+- **Guaranteed Header Action Visibility**: Implemented tight max-widths (`w-44 sm:w-56` for meeting titles, compact `EN → VI` language pills, and truncated audio device labels) paired with an authoritative high-contrast white Studio Record button with `shrink-0`, ensuring the start button is instantly discoverable and never pushed off-screen.
+

@@ -359,55 +359,57 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#0B0C10] text-zinc-100 font-sans overflow-hidden">
       {/* Sidebar Navigation */}
-      <div className="w-64 border-r border-slate-800 bg-slate-900/60 p-4 flex flex-col justify-between shrink-0">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2.5 px-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="font-bold text-slate-100 leading-none">AI Meets</div>
-              <div className="text-[11px] text-indigo-400 font-medium">Translator & Copilot</div>
+      <div className="w-60 border-r border-white/[0.06] bg-zinc-950/70 p-4 flex flex-col justify-between shrink-0 backdrop-blur-xl">
+        <div className="space-y-5">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white">
+                <Radio className="w-3.5 h-3.5 text-zinc-200" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-sm text-zinc-100 tracking-tight">AI Meets</span>
+                <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.06] border border-white/[0.08] px-1.5 py-0.5 rounded">v0.2</span>
+              </div>
             </div>
           </div>
 
-          {/* Prominent Primary Meeting Control in Sidebar */}
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 space-y-2.5 shadow-md">
+          {/* Primary Meeting Control in Sidebar */}
+          <div className="bg-zinc-900/60 border border-white/[0.08] rounded-xl p-3 space-y-2.5">
             <button
               type="button"
               onClick={handleStartStop}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs transition shadow-lg cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium text-xs transition cursor-pointer ${
                 status.is_recording
-                  ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30 animate-pulse"
-                  : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 hover:scale-[1.02]"
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30"
+                  : "bg-white hover:bg-zinc-200 text-zinc-950 font-semibold shadow-xs"
               }`}
             >
               {status.is_recording ? (
                 <>
-                  <MicOff className="w-4 h-4" />
-                  <span>Stop Meeting</span>
+                  <MicOff className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Stop Recording</span>
                 </>
               ) : (
                 <>
-                  <Mic className="w-4 h-4 animate-bounce" />
+                  <Mic className="w-3.5 h-3.5 text-zinc-950" />
                   <span>Start Meeting</span>
                 </>
               )}
             </button>
-            <div className="flex items-center justify-between text-[10px] text-slate-400 px-1 font-mono">
+            <div className="flex items-center justify-between text-[11px] text-zinc-400 px-0.5 font-mono">
               <span className="flex items-center gap-1.5">
                 <span
-                  className={`w-2 h-2 rounded-full ${
-                    status.is_recording ? "bg-rose-400 animate-ping" : "bg-emerald-400"
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    status.is_recording ? "bg-rose-500 animate-pulse" : "bg-emerald-400"
                   }`}
                 />
-                <span className="text-slate-300 font-sans font-medium">
-                  {status.is_recording ? "Recording..." : "System Ready"}
+                <span className="text-zinc-300 font-sans text-[11px]">
+                  {status.is_recording ? "Live Session" : "Engine Ready"}
                 </span>
               </span>
-              <span className="text-slate-400">
+              <span className="text-zinc-400">
                 {srcLang.toUpperCase()} → {tgtLang.toUpperCase()}
               </span>
             </div>
@@ -416,122 +418,123 @@ export const Dashboard: React.FC = () => {
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab("live")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === "live"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-white/[0.08] text-white border border-white/[0.08]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <Radio className="w-4 h-4" />
+              <Radio className="w-3.5 h-3.5" />
               Live Meeting & Subtitles
             </button>
 
             <button
               onClick={() => setActiveTab("profiles")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === "profiles"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-white/[0.08] text-white border border-white/[0.08]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-3.5 h-3.5" />
               Knowledge Profiles (CV/FAQ)
             </button>
 
             <button
               onClick={() => setActiveTab("glossary")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === "glossary"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-white/[0.08] text-white border border-white/[0.08]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <BookA className="w-4 h-4" />
+              <BookA className="w-3.5 h-3.5" />
               Custom Glossary
             </button>
 
             <button
               onClick={() => setActiveTab("history")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === "history"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-white/[0.08] text-white border border-white/[0.08]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <History className="w-4 h-4" />
+              <History className="w-3.5 h-3.5" />
               Meeting History & Export
             </button>
 
             <button
               onClick={() => setActiveTab("settings")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === "settings"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-white/[0.08] text-white border border-white/[0.08]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3.5 h-3.5" />
               AI Models & Settings
             </button>
           </nav>
         </div>
 
         {/* Bottom Status Panel */}
-        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 space-y-2">
+        <div className="bg-zinc-900/60 border border-white/[0.08] rounded-xl p-3 space-y-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">Audio Stream:</span>
+            <span className="text-zinc-400">Audio In:</span>
             <AudioVisualizer level={audioLevel} active={status.is_recording} />
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">Active Profile:</span>
-            <span className="font-semibold text-indigo-300 truncate max-w-[120px]">
+            <span className="text-zinc-400">Profile:</span>
+            <span className="font-medium text-zinc-300 truncate max-w-[120px]">
               {activeProfile ? activeProfile.name : "None"}
             </span>
           </div>
+
           {/* Split / Dock Mode Selector */}
-          <div className="pt-1">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+          <div className="pt-1 border-t border-white/[0.06]">
+            <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-1.5">
               <span>HUD Layout:</span>
-              <span className="font-semibold text-indigo-300 text-[10px]">
-                {isCopilotSplit ? "Split (2 Boxes)" : "Glued (1 Box)"}
+              <span className="font-mono text-zinc-300 text-[10px]">
+                {isCopilotSplit ? "Split" : "Docked"}
               </span>
             </div>
-            <div className="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-[10px]">
+            <div className="flex bg-zinc-950/80 rounded-lg p-0.5 border border-white/[0.08] text-[10px]">
               <button
                 type="button"
                 onClick={() => setCopilotSplit(true)}
-                className={`flex-1 py-1 rounded font-semibold transition cursor-pointer flex items-center justify-center gap-1 ${
+                className={`flex-1 py-1 rounded font-medium transition cursor-pointer flex items-center justify-center gap-1 ${
                   isCopilotSplit
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
                 }`}
                 title="Split Subtitles & AI Copilot into 2 independent movable boxes"
               >
-                <Layers className="w-3 h-3" /> Split (2 Boxes)
+                <Layers className="w-3 h-3" /> Split (2)
               </button>
               <button
                 type="button"
                 onClick={() => setCopilotSplit(false)}
-                className={`flex-1 py-1 rounded font-semibold transition cursor-pointer flex items-center justify-center gap-1 ${
+                className={`flex-1 py-1 rounded font-medium transition cursor-pointer flex items-center justify-center gap-1 ${
                   !isCopilotSplit
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
                 }`}
                 title="Dock Subtitles & AI Copilot together into 1 box"
               >
-                Docked (1 Box)
+                Docked (1)
               </button>
             </div>
           </div>
 
           {/* Subtitles HUD Toggle */}
-          <div className="pt-1 flex gap-1.5">
+          <div className="pt-0.5 flex gap-1.5">
             <button
               onClick={toggleOverlayVisible}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded text-[11px] font-medium transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[11px] font-medium transition cursor-pointer ${
                 overlayVisible
-                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
-                  : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  ? "bg-white/15 text-white border border-white/20"
+                  : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border border-white/[0.06]"
               }`}
               title="Toggle Live Subtitles HUD"
             >
@@ -539,10 +542,12 @@ export const Dashboard: React.FC = () => {
             </button>
             <button
               onClick={() => setOverlayLocked(!overlayLocked)}
-              className={`px-2 py-1 rounded text-[11px] transition cursor-pointer ${
-                overlayLocked ? "bg-rose-600 text-white shadow-sm shadow-rose-600/30" : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+              className={`px-2 py-1 rounded-lg text-[11px] transition cursor-pointer ${
+                overlayLocked
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 border border-white/[0.06]"
               }`}
-              title={overlayLocked ? "Subtitles click-through is locked (clicks pass through)" : "Lock click-through for Subtitles"}
+              title={overlayLocked ? "Subtitles click-through is locked" : "Lock click-through for Subtitles"}
             >
               {overlayLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
             </button>
@@ -552,19 +557,21 @@ export const Dashboard: React.FC = () => {
           <div className="flex gap-1.5">
             <button
               onClick={toggleCopilotVisible}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded text-[11px] font-medium transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[11px] font-medium transition cursor-pointer ${
                 copilotVisible
-                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
-                  : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  ? "bg-white/15 text-white border border-white/20"
+                  : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 border border-white/[0.06]"
               }`}
               title="Toggle AI Copilot HUD Window"
             >
-              <Sparkles className="w-3 h-3" /> AI Copilot
+              <Sparkles className="w-3 h-3" /> Copilot HUD
             </button>
             <button
               onClick={() => setCopilotLocked(!copilotLocked)}
-              className={`px-2 py-1 rounded text-[11px] transition cursor-pointer ${
-                copilotLocked ? "bg-rose-600 text-white shadow-sm shadow-rose-600/30" : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+              className={`px-2 py-1 rounded-lg text-[11px] transition cursor-pointer ${
+                copilotLocked
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 border border-white/[0.06]"
               }`}
               title={copilotLocked ? "Copilot click-through is locked" : "Lock click-through for Copilot"}
             >
@@ -575,17 +582,17 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-auto bg-slate-950">
+      <div className="flex-1 flex flex-col overflow-auto bg-[#0B0C10]">
         {/* Top Control Bar */}
-        <header className="border-b border-slate-800 bg-slate-900/40 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="h-14 border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-md px-4 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <input
               type="text"
               value={sessionTitle}
               onChange={(e) => setSessionTitle(e.target.value)}
               placeholder="Meeting / Interview Title..."
               disabled={status.is_recording}
-              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-64"
+              className="bg-zinc-900/90 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-white/25 w-44 sm:w-56 shrink-0"
             />
 
             {/* Audio Source Picker */}
@@ -593,7 +600,7 @@ export const Dashboard: React.FC = () => {
               value={selectedAudioSource}
               onChange={(e) => setSelectedAudioSource(e.target.value)}
               disabled={status.is_recording}
-              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none"
+              className="bg-zinc-900/90 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none max-w-[160px] truncate shrink-0 cursor-pointer"
             >
               {audioSources.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -603,31 +610,37 @@ export const Dashboard: React.FC = () => {
             </select>
 
             {/* Languages */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center bg-zinc-900/90 border border-white/[0.08] rounded-lg px-1.5 py-0.5 text-xs text-zinc-300 shrink-0">
               <select
                 value={srcLang}
                 onChange={(e) => setLanguages(e.target.value, tgtLang)}
                 disabled={status.is_recording}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 focus:outline-none"
+                className="bg-transparent text-xs text-zinc-200 focus:outline-none py-1 px-1 cursor-pointer"
               >
-                <option value="en">English</option>
-                <option value="vi">Vietnamese</option>
-                <option value="ja">Japanese</option>
-                <option value="zh">Chinese</option>
-                <option value="ko">Korean</option>
+                <option value="en">EN</option>
+                <option value="vi">VI</option>
+                <option value="ja">JA</option>
+                <option value="zh">ZH</option>
+                <option value="ko">KO</option>
+                <option value="fr">FR</option>
+                <option value="de">DE</option>
+                <option value="es">ES</option>
               </select>
-              <span className="text-slate-500">→</span>
+              <span className="text-zinc-500 text-[10px] px-1 font-mono">→</span>
               <select
                 value={tgtLang}
                 onChange={(e) => setLanguages(srcLang, e.target.value)}
                 disabled={status.is_recording}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 focus:outline-none"
+                className="bg-transparent text-xs text-zinc-200 focus:outline-none py-1 px-1 cursor-pointer"
               >
-                <option value="vi">Vietnamese</option>
-                <option value="en">English</option>
-                <option value="ja">Japanese</option>
-                <option value="zh">Chinese</option>
-                <option value="ko">Korean</option>
+                <option value="vi">VI</option>
+                <option value="en">EN</option>
+                <option value="ja">JA</option>
+                <option value="zh">ZH</option>
+                <option value="ko">KO</option>
+                <option value="fr">FR</option>
+                <option value="de">DE</option>
+                <option value="es">ES</option>
               </select>
             </div>
           </div>
@@ -635,66 +648,73 @@ export const Dashboard: React.FC = () => {
           <button
             type="button"
             onClick={handleStartStop}
-            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm transition shadow-xl cursor-pointer ${
+            className={`shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs ${
               status.is_recording
-                ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/40 animate-pulse"
-                : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/40 hover:scale-105"
+                ? "bg-rose-500/20 text-rose-200 border border-rose-500/40 hover:bg-rose-500/30"
+                : "bg-white hover:bg-zinc-200 text-zinc-950 font-semibold"
             }`}
             title={status.is_recording ? "Click to stop recording session" : "Click to start real-time meeting transcription"}
           >
-            {status.is_recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-            <span>{status.is_recording ? "Stop Meeting" : "Start Meeting"}</span>
+            {status.is_recording ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                <span>Stop Meeting</span>
+              </>
+            ) : (
+              <>
+                <Mic className="w-3.5 h-3.5 text-zinc-950" />
+                <span>Start Meeting</span>
+              </>
+            )}
           </button>
         </header>
 
         {/* Tab 1: Live Meeting & Subtitles */}
         {activeTab === "live" && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-auto">
-            {/* Live Subtitles Log (2 cols) */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-emerald-400" />
-                    Live Meeting Dialogue Stream
-                  </h2>
+          <div className="p-5 grid grid-cols-1 md:grid-cols-5 gap-5 flex-1 min-h-0 overflow-auto">
+            {/* Live Subtitles Log (3 cols / 60%) */}
+            <div className="md:col-span-3 flex flex-col gap-3 min-h-0">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <h2 className="text-sm font-semibold text-zinc-100">Live Dialogue</h2>
 
                   {/* Translation Mode Toggle */}
-                  <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-700/60 text-xs">
+                  <div className="flex items-center bg-zinc-900/80 rounded-lg p-0.5 border border-white/[0.08] text-[11px]">
                     <button
                       type="button"
                       onClick={() => setTranscriptionMode("bilingual")}
-                      className={`px-2.5 py-1 rounded-md font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                      className={`px-2 py-0.5 rounded font-medium transition cursor-pointer flex items-center gap-1 ${
                         transcriptionMode === "bilingual"
-                          ? "bg-indigo-600 text-white shadow-xs"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-white/10 text-white shadow-xs"
+                          : "text-zinc-400 hover:text-zinc-200"
                       }`}
                       title="Show both translated text and original spoken speech"
                     >
-                      <Globe className="w-3.5 h-3.5" /> Bilingual Mode
+                      <Globe className="w-3 h-3" /> Bilingual
                     </button>
                     <button
                       type="button"
                       onClick={() => setTranscriptionMode("single")}
-                      className={`px-2.5 py-1 rounded-md font-semibold transition cursor-pointer ${
+                      className={`px-2 py-0.5 rounded font-medium transition cursor-pointer ${
                         transcriptionMode === "single"
-                          ? "bg-indigo-600 text-white shadow-xs"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-white/10 text-white shadow-xs"
+                          : "text-zinc-400 hover:text-zinc-200"
                       }`}
                       title="Show translated subtitles only"
                     >
-                      Single Mode
+                      Single
                     </button>
                   </div>
                 </div>
 
-                <span className="text-xs text-slate-400">
-                  {subtitles.length} utterances captured
+                <span className="text-xs text-zinc-400 font-mono">
+                  {subtitles.length} {subtitles.length === 1 ? "turn" : "turns"}
                 </span>
               </div>
 
               {/* Subtitles Box */}
-              <div className="flex-1 min-h-[380px] bg-slate-900/60 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3 select-text cursor-text">
+              <div className="flex-1 min-h-[300px] bg-zinc-900/30 border border-white/[0.08] rounded-xl p-3.5 overflow-y-auto space-y-2.5 select-text cursor-text">
                 {subtitles.length > 0 ? (
                   subtitles.map((sub) => {
                     const isEditing = editingSubtitleId === sub.id;
@@ -703,47 +723,47 @@ export const Dashboard: React.FC = () => {
                       return (
                         <div
                           key={sub.id}
-                          className="p-3 rounded-xl bg-slate-900 border border-indigo-500/60 space-y-2 shadow-lg select-auto"
+                          className="p-3 rounded-lg bg-zinc-900 border border-white/20 space-y-2 shadow-lg select-auto"
                         >
-                          <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
+                          <div className="flex items-center justify-between text-xs text-zinc-300 font-medium">
                             <span>Editing Utterance ({sub.speaker}):</span>
                             <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => handleSaveEditSubtitle(sub.id)}
-                                className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 transition cursor-pointer"
+                                className="px-2 py-0.5 rounded bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs flex items-center gap-1 transition cursor-pointer"
                               >
-                                <Check className="w-3.5 h-3.5" /> Save
+                                <Check className="w-3 h-3" /> Save
                               </button>
                               <button
                                 type="button"
                                 onClick={handleCancelEditSubtitle}
-                                className="p-1 rounded text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                                className="p-1 rounded text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
                               >
                                 <X className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
                           <div>
-                            <label className="text-[10px] text-slate-400 uppercase font-semibold">
+                            <label className="text-[10px] text-zinc-400 uppercase font-mono">
                               Translated Text
                             </label>
                             <input
                               type="text"
                               value={editSubTgtText}
                               onChange={(e) => setEditSubTgtText(e.target.value)}
-                              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 mt-0.5"
+                              className="w-full bg-zinc-950 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-white/30 mt-0.5"
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] text-slate-400 uppercase font-semibold">
+                            <label className="text-[10px] text-zinc-400 uppercase font-mono">
                               Original Spoken Text
                             </label>
                             <input
                               type="text"
                               value={editSubSrcText}
                               onChange={(e) => setEditSubSrcText(e.target.value)}
-                              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 italic focus:outline-none focus:border-indigo-500 mt-0.5"
+                              className="w-full bg-zinc-950 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-zinc-300 italic focus:outline-none focus:border-white/30 mt-0.5"
                             />
                           </div>
                         </div>
@@ -753,35 +773,37 @@ export const Dashboard: React.FC = () => {
                     return (
                       <div
                         key={sub.id}
-                        className={`p-3 rounded-xl border transition group/item select-text ${
+                        className={`p-3 rounded-lg border transition group/item select-text ${
                           sub.is_question
-                            ? "bg-amber-950/20 border-amber-500/30"
-                            : "bg-slate-800/40 border-slate-700/40"
+                            ? "bg-amber-500/[0.04] border-amber-500/25"
+                            : "bg-zinc-900/50 border-white/[0.06] hover:border-white/10"
                         }`}
                       >
-                        <div className="flex items-center justify-between text-xs mb-1">
+                        <div className="flex items-center justify-between text-xs mb-1.5">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`px-1.5 py-0.5 rounded font-bold uppercase text-[10px] ${
-                                sub.speaker === "Me" ? "bg-emerald-500/20 text-emerald-300" : "bg-sky-500/20 text-sky-300"
+                              className={`px-1.5 py-0.5 rounded font-mono text-[10px] uppercase ${
+                                sub.speaker === "Me"
+                                  ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                                  : "bg-sky-500/10 text-sky-300 border border-sky-500/20"
                               }`}
                             >
                               {sub.speaker}
                             </span>
                             {sub.is_question && (
-                              <span className="px-1.5 py-0.5 rounded font-semibold text-[10px] bg-amber-500/20 text-amber-300">
-                                ❓ Question
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                                Question
                               </span>
                             )}
                             {sub.is_edited && (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-zinc-400 bg-white/[0.06] border border-white/[0.08]">
                                 Edited
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-500">
+                            <span className="text-[10px] text-zinc-500 font-mono">
                               {new Date(sub.timestamp_ms).toLocaleTimeString()}
                             </span>
 
@@ -797,7 +819,7 @@ export const Dashboard: React.FC = () => {
                                       : sub.tgt_text
                                   )
                                 }
-                                className="p-1 rounded hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                                className="p-1 rounded hover:bg-white/[0.06] text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
                                 title="Copy utterance"
                               >
                                 {copiedSubtitleId === sub.id ? (
@@ -809,7 +831,7 @@ export const Dashboard: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleStartEditSubtitle(sub)}
-                                className="p-1 rounded hover:bg-slate-700/60 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                                className="p-1 rounded hover:bg-white/[0.06] text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
                                 title="Edit utterance text"
                               >
                                 <Pencil className="w-3 h-3" />
@@ -819,13 +841,13 @@ export const Dashboard: React.FC = () => {
                         </div>
 
                         {/* Primary Translated Text */}
-                        <div className="text-sm font-semibold text-slate-100 select-text leading-snug">
+                        <div className="text-sm font-medium text-zinc-100 select-text leading-relaxed">
                           {sub.tgt_text}
                         </div>
 
                         {/* Secondary Spoken Text (Bilingual Mode) */}
                         {transcriptionMode === "bilingual" && (
-                          <div className="text-xs text-slate-400 italic mt-0.5 select-text">
+                          <div className="text-xs text-zinc-400 italic mt-1 select-text">
                             {sub.src_text}
                           </div>
                         )}
@@ -833,25 +855,17 @@ export const Dashboard: React.FC = () => {
                     );
                   })
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 py-16 px-4">
-                    <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner">
-                      <Mic className="w-8 h-8 text-emerald-400 animate-pulse" />
+                  <div className="h-full flex flex-col items-center justify-center text-zinc-400 space-y-3 py-16 px-4">
+                    <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-zinc-400">
+                      <Mic className="w-5 h-5 text-zinc-300" />
                     </div>
-                    <div className="text-center max-w-sm space-y-1.5">
-                      <h3 className="text-base font-bold text-slate-100">Ready to Transcribe & Assist</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Click below to start capturing audio from your selected microphone and meeting audio stream in real time.
+                    <div className="text-center max-w-sm space-y-1">
+                      <h3 className="text-sm font-semibold text-zinc-100">Ready for Live Dialogue</h3>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        Click Start Meeting or use the simulator below to begin real-time speech translation and copilot insights.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleStartStop}
-                      className="flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/30 transition hover:scale-105 cursor-pointer"
-                    >
-                      <Mic className="w-4 h-4" />
-                      Start Meeting Now
-                    </button>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                    <div className="flex items-center gap-2 text-[11px] text-zinc-500 font-mono pt-1">
                       <span>{srcLang.toUpperCase()} → {tgtLang.toUpperCase()}</span>
                       <span>•</span>
                       <span>Device: {audioSources.find((s) => s.id === selectedAudioSource)?.name || "System Default"}</span>
@@ -861,11 +875,11 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {/* Speech Simulator / Tester */}
-              <form onSubmit={handleSimulate} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 flex items-center gap-2">
+              <form onSubmit={handleSimulate} className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-2.5 flex items-center gap-2">
                 <select
                   value={testSpeaker}
                   onChange={(e) => setTestSpeaker(e.target.value)}
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none"
+                  className="bg-zinc-950 border border-white/[0.08] rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none"
                 >
                   <option value="Interviewer">Interviewer</option>
                   <option value="Client">Client</option>
@@ -878,25 +892,27 @@ export const Dashboard: React.FC = () => {
                   value={testSpeechText}
                   onChange={(e) => setTestSpeechText(e.target.value)}
                   placeholder="Test speech e.g.: 'How do you handle microservices database migrations?'"
-                  className="flex-1 bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-white/20"
                 />
 
                 <button
                   type="submit"
                   disabled={!testSpeechText.trim()}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1 transition shrink-0"
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-40 text-zinc-200 border border-white/10 font-medium text-xs flex items-center gap-1.5 transition shrink-0 cursor-pointer"
                 >
                   <Play className="w-3 h-3" /> Simulate
                 </button>
               </form>
             </div>
 
-            {/* AI Copilot Answer Suggestion Column */}
-            <div className="flex flex-col gap-4">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                AI Answer Suggestion Copilot
-              </h2>
+            {/* AI Copilot Answer Suggestion Column (2 cols / 40%) */}
+            <div className="md:col-span-2 flex flex-col gap-3 min-h-0">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-zinc-300" />
+                  AI Answer Copilot
+                </h2>
+              </div>
               <CopilotCard suggestion={latestSuggestion} onAskManual={askCopilotManual} />
             </div>
           </div>
@@ -904,34 +920,36 @@ export const Dashboard: React.FC = () => {
 
         {/* Tab 2: Knowledge Profiles */}
         {activeTab === "profiles" && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-auto">
+          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5 flex-1 overflow-auto">
             {/* Create Profile */}
-            <form onSubmit={handleCreateProfile} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-indigo-400" />
-                Add Context / Knowledge Profile
-              </h2>
-              <p className="text-xs text-slate-400">
-                Ground the AI answer suggestions with your resume (for technical interviews), product battlecards (for sales), or meeting agendas!
-              </p>
+            <form onSubmit={handleCreateProfile} className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5 space-y-4">
+              <div>
+                <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-zinc-300" />
+                  Add Context / Knowledge Profile
+                </h2>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Ground the AI answer suggestions with your resume (for technical interviews), product battlecards (for sales), or meeting agendas!
+                </p>
+              </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Profile Name</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Profile Name</label>
                 <input
                   type="text"
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
                   placeholder="e.g., Senior Full-Stack Engineer CV 2026"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-white/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Profile Type</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Profile Type</label>
                 <select
                   value={profileType}
                   onChange={(e) => setProfileType(e.target.value as any)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
                 >
                   <option value="interview">Job Interview (CV, Experience, Tech Stack)</option>
                   <option value="sales">Sales & Demo (Product FAQs, Pricing, Competitors)</option>
@@ -941,7 +959,7 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
                   Knowledge Base Content (Paste Markdown or Plain Text)
                 </label>
                 <textarea
@@ -949,14 +967,14 @@ export const Dashboard: React.FC = () => {
                   value={profileContent}
                   onChange={(e) => setProfileContent(e.target.value)}
                   placeholder="Paste your CV, project achievements, technical strengths, product specifications, or interview preparation notes here..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg p-3 text-xs text-zinc-100 focus:outline-none focus:border-white/20 font-mono"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={!profileName.trim() || !profileContent.trim()}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-semibold text-xs rounded-xl transition"
+                className="w-full py-2 bg-white hover:bg-zinc-200 disabled:opacity-40 text-zinc-950 font-semibold text-xs rounded-lg transition cursor-pointer"
               >
                 Save Knowledge Profile
               </button>
@@ -964,29 +982,29 @@ export const Dashboard: React.FC = () => {
 
             {/* Existing Profiles List */}
             <div className="space-y-3">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-400" />
-                Active & Saved Profiles ({profiles.length})
+              <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-zinc-300" />
+                Saved Profiles ({profiles.length})
               </h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {profiles.map((p) => (
                   <div
                     key={p.id}
-                    className={`p-4 rounded-2xl border transition ${
+                    className={`p-4 rounded-xl border transition ${
                       p.is_active
-                        ? "bg-indigo-950/30 border-indigo-500/50 shadow-lg shadow-indigo-500/10"
-                        : "bg-slate-900/60 border-slate-800"
+                        ? "bg-zinc-900/80 border-emerald-500/40 shadow-sm"
+                        : "bg-zinc-900/40 border-white/[0.06] hover:border-white/10"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-100">{p.name}</span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-slate-300">
+                        <span className="font-semibold text-sm text-zinc-100">{p.name}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-zinc-800 text-zinc-300">
                           {p.profile_type}
                         </span>
                         {p.is_active && (
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          <span className="flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                             <CheckCircle className="w-3 h-3" /> Active Profile
                           </span>
                         )}
@@ -996,14 +1014,14 @@ export const Dashboard: React.FC = () => {
                         {!p.is_active && (
                           <button
                             onClick={() => setActiveProfile(p.id)}
-                            className="text-xs px-2.5 py-1 rounded-lg bg-indigo-600/40 hover:bg-indigo-600 text-indigo-200 transition"
+                            className="text-xs px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 transition cursor-pointer"
                           >
                             Set Active
                           </button>
                         )}
                         <button
                           onClick={() => deleteProfile(p.id)}
-                          className="p-1 text-slate-500 hover:text-rose-400 transition"
+                          className="p-1 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
                           title="Delete profile"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -1011,7 +1029,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-400 line-clamp-3 font-mono bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+                    <p className="text-xs text-zinc-400 line-clamp-3 font-mono bg-zinc-950/60 p-2.5 rounded-lg border border-white/[0.06]">
                       {p.content}
                     </p>
                   </div>
@@ -1023,52 +1041,54 @@ export const Dashboard: React.FC = () => {
 
         {/* Tab 3: Custom Glossary */}
         {activeTab === "glossary" && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-auto">
+          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5 flex-1 overflow-auto">
             {/* Add Glossary Term */}
-            <form onSubmit={handleAddGlossary} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-indigo-400" />
-                Add Glossary Term
-              </h2>
-              <p className="text-xs text-slate-400">
-                Ensure technical jargon, brand names, or specific acronyms translate exactly as specified!
-              </p>
+            <form onSubmit={handleAddGlossary} className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5 space-y-4">
+              <div>
+                <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-zinc-300" />
+                  Add Glossary Term
+                </h2>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Ensure technical jargon, brand names, or specific acronyms translate exactly as specified!
+                </p>
+              </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Source Term</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Source Term</label>
                 <input
                   type="text"
                   value={glossarySource}
                   onChange={(e) => setGlossarySource(e.target.value)}
                   placeholder="e.g., Kubernetes Pod"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-white/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Target Translation</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Target Translation</label>
                 <input
                   type="text"
                   value={glossaryTarget}
                   onChange={(e) => setGlossaryTarget(e.target.value)}
                   placeholder="e.g., Cụm Kubernetes Pod"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-white/20"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={!glossarySource.trim() || !glossaryTarget.trim()}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-semibold text-xs rounded-xl transition"
+                className="w-full py-2 bg-white hover:bg-zinc-200 disabled:opacity-40 text-zinc-950 font-semibold text-xs rounded-lg transition cursor-pointer"
               >
                 Add Term to Dictionary
               </button>
             </form>
 
             {/* Glossary Table */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col space-y-3">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <BookA className="w-4 h-4 text-indigo-400" />
+            <div className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5 flex flex-col space-y-3">
+              <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                <BookA className="w-4 h-4 text-zinc-300" />
                 Custom Terminology Mappings ({glossary.length})
               </h2>
 
@@ -1076,17 +1096,17 @@ export const Dashboard: React.FC = () => {
                 {glossary.map((g) => (
                   <div
                     key={g.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/40 text-xs"
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/60 border border-white/[0.06] text-xs"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-slate-100">{g.source}</span>
-                      <span className="text-slate-500">→</span>
+                      <span className="font-semibold text-zinc-100">{g.source}</span>
+                      <span className="text-zinc-500 font-mono">→</span>
                       <span className="font-medium text-emerald-400">{g.target}</span>
                     </div>
 
                     <button
                       onClick={() => deleteGlossaryEntry(g.id)}
-                      className="text-slate-500 hover:text-rose-400 p-1 transition"
+                      className="text-zinc-500 hover:text-rose-400 p-1 transition cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -1099,34 +1119,34 @@ export const Dashboard: React.FC = () => {
 
         {/* Tab 4: Meeting History & Export */}
         {activeTab === "history" && (
-          <div className="p-6 space-y-4 flex-1 overflow-auto">
+          <div className="p-5 space-y-4 flex-1 overflow-auto">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <History className="w-4 h-4 text-indigo-400" />
+              <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                <History className="w-4 h-4 text-zinc-300" />
                 Meeting Sessions ({sessions.length})
               </h2>
 
               {sessions.length > 0 && (
                 <button
                   onClick={clearHistory}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white transition flex items-center gap-1.5"
+                  className="text-xs px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Clear All History
                 </button>
               )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {sessions.map((s) => (
-                <div key={s.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+                <div key={s.id} className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-4 flex items-center justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-100">{s.title}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 uppercase font-semibold">
+                      <span className="font-semibold text-zinc-100">{s.title}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono uppercase">
                         {s.src_lang} → {s.tgt_lang}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-zinc-500 font-mono">
                       Started: {new Date(s.started_at).toLocaleString()} | Source: {s.audio_source}
                     </div>
                   </div>
@@ -1134,28 +1154,28 @@ export const Dashboard: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleExport(s.id, "srt")}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-xs text-zinc-300 border border-white/[0.08] transition cursor-pointer"
                       title="Export SubRip Subtitles"
                     >
                       <Download className="w-3.5 h-3.5" /> .SRT
                     </button>
                     <button
                       onClick={() => handleExport(s.id, "md")}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-xs text-zinc-300 border border-white/[0.08] transition cursor-pointer"
                       title="Export Markdown Transcript"
                     >
                       <Download className="w-3.5 h-3.5" /> .MD
                     </button>
                     <button
                       onClick={() => handleExport(s.id, "csv")}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-xs text-zinc-300 border border-white/[0.08] transition cursor-pointer"
                       title="Export CSV data"
                     >
                       <Download className="w-3.5 h-3.5" /> .CSV
                     </button>
                     <button
                       onClick={() => deleteSession(s.id)}
-                      className="p-1.5 text-slate-500 hover:text-rose-400 transition"
+                      className="p-1.5 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1168,44 +1188,44 @@ export const Dashboard: React.FC = () => {
 
         {/* Tab 5: AI Models & Settings */}
         {activeTab === "settings" && (
-          <form onSubmit={handleSaveSettings} className="p-6 max-w-2xl space-y-5 flex-1 overflow-auto">
+          <form onSubmit={handleSaveSettings} className="p-5 max-w-2xl space-y-5 flex-1 overflow-auto">
             <div>
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <Settings className="w-4 h-4 text-indigo-400" />
+              <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-zinc-300" />
                 Settings & Preferences
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-zinc-400 mt-1">
                 Configure your meeting language pairs, audio devices, overlay preferences, and hybrid AI models. All preferences persist across sessions in local SQLite.
               </p>
             </div>
 
             {/* Section 1: Meeting & Language Preferences */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-100 flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-xs font-semibold text-zinc-100 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-zinc-400" />
                     Meeting & Language Preferences
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-zinc-400 mt-0.5">
                     Default languages, audio source, subtitle modes, and window layouts.
                   </p>
                 </div>
-                <span className="text-[10px] text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">
+                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-mono">
                   Auto-persisted
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
                     Spoken Meeting Language (Source)
                   </label>
                   <select
                     value={srcLang}
                     onChange={(e) => setLanguages(e.target.value, tgtLang)}
                     disabled={status.is_recording}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
                   >
                     <option value="en">English (US/UK)</option>
                     <option value="vi">Vietnamese (Tiếng Việt)</option>
@@ -1219,14 +1239,14 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
                     Subtitles & Copilot Translation (Target)
                   </label>
                   <select
                     value={tgtLang}
                     onChange={(e) => setLanguages(srcLang, e.target.value)}
                     disabled={status.is_recording}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
                   >
                     <option value="vi">Vietnamese (Tiếng Việt)</option>
                     <option value="en">English (US/UK)</option>
@@ -1241,14 +1261,14 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
                   Default Audio Input Device
                 </label>
                 <select
                   value={selectedAudioSource}
                   onChange={(e) => setSelectedAudioSource(e.target.value)}
                   disabled={status.is_recording}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
                 >
                   {audioSources.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -1258,15 +1278,15 @@ export const Dashboard: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-800/60">
+              <div className="grid grid-cols-3 gap-3 pt-1 border-t border-white/[0.06]">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
                     Live Subtitles Mode
                   </label>
                   <select
                     value={transcriptionMode}
                     onChange={(e) => setTranscriptionMode(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none"
                   >
                     <option value="bilingual">Bilingual (Both)</option>
                     <option value="single">Single (Trans only)</option>
@@ -1274,13 +1294,13 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
                     AI Copilot Output Mode
                   </label>
                   <select
                     value={copilotMode}
                     onChange={(e) => setCopilotMode(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none"
                   >
                     <option value="bilingual">Bilingual Answers</option>
                     <option value="single">Single Language</option>
@@ -1288,13 +1308,13 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                  <label className="block text-[11px] font-medium text-zinc-400 mb-1">
                     HUD Box Layout
                   </label>
                   <select
                     value={isCopilotSplit ? "split" : "docked"}
                     onChange={(e) => setCopilotSplit(e.target.value === "split")}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none"
                   >
                     <option value="split">Split (2 Boxes)</option>
                     <option value="docked">Docked (1 Box)</option>
@@ -1304,29 +1324,29 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Section 2: AI Model & Provider Configuration */}
-            <div className="space-y-4 bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div className="space-y-4 bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-100 flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-xs font-semibold text-zinc-100 flex items-center gap-2">
+                    <Cpu className="w-4 h-4 text-zinc-400" />
                     AI Model & Provider Configuration
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-zinc-400 mt-0.5">
                     Configure your hybrid inference backend (Local, OpenAI, OpenAI-Compatible, Claude, Gemini).
                   </p>
                 </div>
                 {saveSuccess && (
-                  <span className="text-[11px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/40 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1.5 animate-bounce">
+                  <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-medium flex items-center gap-1.5">
                     <CheckCircle className="w-3.5 h-3.5" /> Saved & Active!
                   </span>
                 )}
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Active AI Provider</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Active AI Provider</label>
                 <select
                   value={provider}
                   onChange={(e) => setProvider(e.target.value as any)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none"
                 >
                   <option value="local">Local llama-server / Ollama (100% Privacy & Zero Cost)</option>
                   <option value="openai_compatible">OpenAI API Compatible (DeepSeek, Groq, OpenRouter, etc.)</option>
@@ -1337,9 +1357,9 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {provider === "openai_compatible" && (
-                <div className="space-y-3 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                <div className="space-y-3 bg-zinc-950/60 p-3.5 rounded-lg border border-white/[0.06]">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    <label className="block text-xs font-medium text-zinc-300 mb-1">
                       API Base URL / Endpoint
                     </label>
                     <input
@@ -1347,12 +1367,12 @@ export const Dashboard: React.FC = () => {
                       value={customEndpoint}
                       onChange={(e) => setCustomEndpoint(e.target.value)}
                       placeholder="https://api.deepseek.com/v1"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                      className="w-full bg-zinc-900 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">
                       Quick Provider Presets
                     </label>
                     <div className="flex flex-wrap gap-1.5">
@@ -1364,10 +1384,10 @@ export const Dashboard: React.FC = () => {
                             setCustomEndpoint(preset.endpoint);
                             setModelName(preset.model);
                           }}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition cursor-pointer ${
                             customEndpoint === preset.endpoint
-                              ? "bg-indigo-600/30 text-indigo-300 border-indigo-500/50"
-                              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                              ? "bg-white/15 text-white border-white/20"
+                              : "bg-zinc-900 text-zinc-400 border-white/[0.06] hover:border-white/10 hover:text-zinc-200"
                           }`}
                         >
                           {preset.name}
@@ -1377,7 +1397,7 @@ export const Dashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    <label className="block text-xs font-medium text-zinc-300 mb-1">
                       Custom API Key (Bearer Token)
                     </label>
                     <input
@@ -1385,7 +1405,7 @@ export const Dashboard: React.FC = () => {
                       value={customApiKey}
                       onChange={(e) => setCustomApiKey(e.target.value)}
                       placeholder="sk-... (Leave empty for local endpoints)"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                      className="w-full bg-zinc-900 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                     />
                   </div>
                 </div>
@@ -1393,64 +1413,64 @@ export const Dashboard: React.FC = () => {
 
               {provider === "local" && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Local HTTP Endpoint</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">Local HTTP Endpoint</label>
                   <input
                     type="text"
                     value={localEndpoint}
                     onChange={(e) => setLocalEndpoint(e.target.value)}
                     placeholder="http://127.0.0.1:8080/v1"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                   />
                 </div>
               )}
 
               {provider === "openai" && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">OpenAI API Key</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">OpenAI API Key</label>
                   <input
                     type="password"
                     value={openaiKey}
                     onChange={(e) => setOpenaiKey(e.target.value)}
                     placeholder="sk-..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                   />
                 </div>
               )}
 
               {provider === "anthropic" && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Anthropic API Key</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">Anthropic API Key</label>
                   <input
                     type="password"
                     value={anthropicKey}
                     onChange={(e) => setAnthropicKey(e.target.value)}
                     placeholder="sk-ant-..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                   />
                 </div>
               )}
 
               {provider === "gemini" && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Google Gemini API Key</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">Google Gemini API Key</label>
                   <input
                     type="password"
                     value={geminiKey}
                     onChange={(e) => setGeminiKey(e.target.value)}
                     placeholder="AIzaSy..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                    className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Model Name / Identifier</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Model Name / Identifier</label>
                 <input
                   type="text"
                   value={modelName}
                   onChange={(e) => setModelName(e.target.value)}
                   placeholder="hy-mt2-1.8b or gpt-4o-mini or claude-3-haiku-20240307"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none font-mono"
+                  className="w-full bg-zinc-950 border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
                 />
               </div>
 
@@ -1460,14 +1480,14 @@ export const Dashboard: React.FC = () => {
                   type="button"
                   onClick={handleTestProvider}
                   disabled={testingProvider}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-indigo-300 font-semibold text-xs rounded-xl border border-slate-700 transition"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-white/[0.06] hover:bg-white/[0.1] disabled:opacity-50 text-zinc-200 font-medium text-xs rounded-lg border border-white/[0.08] transition cursor-pointer"
                 >
                   <Zap className={`w-3.5 h-3.5 text-amber-400 ${testingProvider ? "animate-spin" : ""}`} />
-                  {testingProvider ? "Benchmarking Provider..." : "Test Active Provider"}
+                  {testingProvider ? "Benchmarking..." : "Test Active Provider"}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition shadow-lg shadow-indigo-600/20"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs rounded-lg transition shadow-xs cursor-pointer"
                 >
                   <Save className="w-4 h-4" /> Save Configuration
                 </button>
@@ -1476,10 +1496,10 @@ export const Dashboard: React.FC = () => {
               {/* Active Provider Test Result */}
               {testResult && (
                 <div
-                  className={`p-3.5 rounded-xl border text-xs transition ${
+                  className={`p-3.5 rounded-lg border text-xs transition ${
                     testResult.success
-                      ? "bg-slate-950/80 border-emerald-500/40 text-slate-200"
-                      : "bg-rose-950/30 border-rose-500/40 text-rose-300"
+                      ? "bg-zinc-950/80 border-emerald-500/30 text-zinc-200"
+                      : "bg-rose-950/20 border-rose-500/30 text-rose-300"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
@@ -1493,12 +1513,12 @@ export const Dashboard: React.FC = () => {
                     </span>
                     {testResult.success && (
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
                           testResult.latency_ms < 500
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
                             : testResult.latency_ms < 1500
-                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                            : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                            ? "bg-sky-500/10 text-sky-300 border border-sky-500/20"
+                            : "bg-amber-500/10 text-amber-300 border border-amber-500/20"
                         }`}
                       >
                         ⚡ {testResult.latency_ms} ms
@@ -1507,10 +1527,10 @@ export const Dashboard: React.FC = () => {
                   </div>
                   {testResult.success ? (
                     <div className="space-y-1">
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-[11px] text-zinc-400">
                         Input: <span className="italic">"Welcome everyone to our project architecture review meeting."</span>
                       </div>
-                      <div className="text-[11px] text-emerald-300 font-medium bg-emerald-950/30 p-2 rounded-lg border border-emerald-900/30">
+                      <div className="text-[11px] text-emerald-300 font-medium bg-emerald-500/[0.06] p-2 rounded-lg border border-emerald-500/20">
                         {testResult.translation}
                       </div>
                     </div>
@@ -1524,14 +1544,14 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Provider Comparison & Benchmark Card */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div className="bg-zinc-900/40 border border-white/[0.08] rounded-xl p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <BarChart2 className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                    <BarChart2 className="w-4 h-4 text-zinc-400" />
                     Multi-Provider Comparison & Benchmark
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-zinc-400 mt-0.5">
                     Evaluate latency and translation fidelity side-by-side across all configured AI backends.
                   </p>
                 </div>
@@ -1539,7 +1559,7 @@ export const Dashboard: React.FC = () => {
                   type="button"
                   onClick={handleCompareAllProviders}
                   disabled={comparing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 disabled:opacity-50 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-medium transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 disabled:opacity-50 text-zinc-200 border border-white/10 rounded-lg text-xs font-medium transition cursor-pointer"
                 >
                   <BarChart2 className={`w-3.5 h-3.5 ${comparing ? "animate-pulse" : ""}`} />
                   {comparing ? "Benchmarking All..." : "Compare Providers"}
@@ -1548,7 +1568,7 @@ export const Dashboard: React.FC = () => {
 
               {compareResults.length > 0 && (
                 <div className="space-y-2 pt-1">
-                  <div className="text-[11px] text-slate-400 font-medium">
+                  <div className="text-[11px] text-zinc-400 font-medium">
                     Benchmark Results ({compareResults.length} backends evaluated):
                   </div>
                   <div className="grid grid-cols-1 gap-2">
@@ -1558,26 +1578,26 @@ export const Dashboard: React.FC = () => {
                       .map((res, idx) => (
                         <div
                           key={`${res.provider}-${res.model}-${idx}`}
-                          className={`p-3 rounded-xl border text-xs flex flex-col gap-1.5 transition ${
+                          className={`p-3 rounded-lg border text-xs flex flex-col gap-1.5 transition ${
                             res.success
-                              ? "bg-slate-950/70 border-slate-800 text-slate-200"
+                              ? "bg-zinc-950/70 border-white/[0.06] text-zinc-200"
                               : "bg-rose-950/20 border-rose-900/30 text-rose-300"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-slate-200 flex items-center gap-1.5">
-                              <span className="text-[10px] text-slate-500 font-mono">#{idx + 1}</span>
+                            <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
+                              <span className="text-[10px] text-zinc-500 font-mono">#{idx + 1}</span>
                               {res.provider}
-                              <span className="text-slate-400 font-mono text-[10px]">({res.model})</span>
+                              <span className="text-zinc-400 font-mono text-[10px]">({res.model})</span>
                             </span>
                             {res.success ? (
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
                                   res.latency_ms < 500
-                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                    ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
                                     : res.latency_ms < 1500
-                                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                                    : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                    ? "bg-sky-500/10 text-sky-300 border border-sky-500/20"
+                                    : "bg-amber-500/10 text-amber-300 border border-amber-500/20"
                                 }`}
                               >
                                 ⚡ {res.latency_ms} ms
@@ -1587,7 +1607,7 @@ export const Dashboard: React.FC = () => {
                             )}
                           </div>
                           {res.success ? (
-                            <div className="text-[11px] text-slate-300 bg-slate-900/50 p-2 rounded-lg border border-slate-800/60 font-serif">
+                            <div className="text-[11px] text-zinc-300 bg-zinc-900/50 p-2 rounded-lg border border-white/[0.06] font-serif">
                               "{res.translation}"
                             </div>
                           ) : (

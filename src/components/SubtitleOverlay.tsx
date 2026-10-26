@@ -16,6 +16,7 @@ import {
   Globe,
   Layers,
   ExternalLink,
+  Bot,
 } from "lucide-react";
 
 export const SubtitleOverlay: React.FC = () => {
@@ -148,17 +149,17 @@ export const SubtitleOverlay: React.FC = () => {
       )}
 
       {/* Main Subtitle Container */}
-      <div className="w-full bg-slate-950/95 backdrop-blur-2xl border border-slate-700/70 rounded-2xl p-3 shadow-2xl relative group">
+      <div className="w-full bg-black/85 backdrop-blur-2xl border border-white/[0.1] rounded-2xl p-3 shadow-2xl relative group">
         {/* Top Control Bar (Draggable) */}
         <div
           onMouseDown={handleStartDrag}
           data-tauri-drag-region="deep"
           style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
-          className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/60 cursor-move text-xs text-slate-400 select-none"
+          className="flex items-center justify-between pb-2 mb-2 border-b border-white/[0.06] cursor-move text-xs text-zinc-400 select-none"
         >
           <div className="flex items-center gap-2 pointer-events-none select-none">
-            <Move className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-semibold text-slate-200 tracking-wide">Live Subtitles</span>
+            <Move className="w-3.5 h-3.5 text-zinc-500" />
+            <span className="font-semibold text-zinc-200 tracking-wide text-xs">Subtitles</span>
             <AudioVisualizer level={audioLevel} active={status.is_recording} />
           </div>
 
@@ -169,14 +170,14 @@ export const SubtitleOverlay: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Translation Mode Picker (Bilingual vs Single) */}
-            <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-[10px]">
+            <div className="flex items-center bg-zinc-900 rounded-md p-0.5 border border-white/[0.08] text-[10px]">
               <button
                 type="button"
                 onClick={() => setTranscriptionMode("bilingual")}
-                className={`px-1.5 py-0.5 rounded font-bold transition cursor-pointer flex items-center gap-0.5 ${
+                className={`px-1.5 py-0.5 rounded font-medium transition cursor-pointer flex items-center gap-0.5 ${
                   transcriptionMode === "bilingual"
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-zinc-800 text-white shadow-xs"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
                 title="Bilingual Mode: Show both translated and source spoken text"
               >
@@ -185,10 +186,10 @@ export const SubtitleOverlay: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setTranscriptionMode("single")}
-                className={`px-1.5 py-0.5 rounded font-bold transition cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded font-medium transition cursor-pointer ${
                   transcriptionMode === "single"
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-zinc-800 text-white shadow-xs"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
                 title="Single Mode: Show translated subtitles only"
               >
@@ -197,14 +198,14 @@ export const SubtitleOverlay: React.FC = () => {
             </div>
 
             {/* Font size picker */}
-            <div className="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+            <div className="flex items-center bg-zinc-900 rounded-md p-0.5 border border-white/[0.08]">
               {(["sm", "md", "lg"] as const).map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setFontSize(s)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold transition cursor-pointer ${
-                    fontSize === s ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-200"
+                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-medium transition cursor-pointer ${
+                    fontSize === s ? "bg-zinc-800 text-white shadow-xs" : "text-zinc-500 hover:text-zinc-300"
                   }`}
                 >
                   {s}
@@ -216,10 +217,10 @@ export const SubtitleOverlay: React.FC = () => {
             <button
               type="button"
               onClick={() => toggleCopilotSplit()}
-              className={`p-1.5 rounded-lg border transition cursor-pointer flex items-center gap-1 ${
+              className={`p-1 rounded-md border transition cursor-pointer flex items-center gap-1 text-[11px] ${
                 isCopilotSplit
-                  ? "bg-indigo-950/70 border-indigo-500/50 text-indigo-300"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                  ? "bg-zinc-800 border-white/[0.15] text-zinc-100"
+                  : "bg-zinc-900 border-white/[0.08] text-zinc-400 hover:text-zinc-200"
               }`}
               title={
                 isCopilotSplit
@@ -227,7 +228,7 @@ export const SubtitleOverlay: React.FC = () => {
                   : "Currently Glued/Docked in 1 box. Click to Split into 2 independent boxes."
               }
             >
-              {isCopilotSplit ? <Layers className="w-3.5 h-3.5" /> : <ExternalLink className="w-3.5 h-3.5" />}
+              {isCopilotSplit ? <Layers className="w-3 h-3" /> : <ExternalLink className="w-3 h-3" />}
             </button>
 
             {/* Copilot Window / Drawer Toggle */}
@@ -240,10 +241,10 @@ export const SubtitleOverlay: React.FC = () => {
                   setShowCopilot(!showCopilot);
                 }
               }}
-              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+              className={`p-1 rounded-md border transition cursor-pointer flex items-center gap-1 text-[11px] ${
                 (isCopilotSplit ? copilotVisible : showCopilot)
-                  ? "bg-indigo-600 text-white border-indigo-500 shadow-sm shadow-indigo-600/30"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                  ? "bg-zinc-800 border-white/[0.15] text-white"
+                  : "bg-zinc-900 border-white/[0.08] text-zinc-400 hover:text-zinc-200"
               }`}
               title={
                 isCopilotSplit
@@ -255,31 +256,31 @@ export const SubtitleOverlay: React.FC = () => {
                   : "Show AI Copilot Drawer"
               }
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Bot className="w-3 h-3" />
             </button>
 
             {/* Click-through lock */}
             <button
               type="button"
               onClick={() => setOverlayLocked(!overlayLocked)}
-              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+              className={`p-1 rounded-md border transition cursor-pointer ${
                 overlayLocked
                   ? "bg-rose-500/20 border-rose-500/40 text-rose-300"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                  : "bg-zinc-900 border-white/[0.08] text-zinc-400 hover:text-zinc-200"
               }`}
               title={overlayLocked ? "Click-through is locked (Unlock from Dashboard or Menu)" : "Lock click-through"}
             >
-              {overlayLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+              {overlayLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
             </button>
 
             {/* Close / Hide Live Subtitles */}
             <button
               type="button"
               onClick={() => setOverlayVisible(false)}
-              className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+              className="p-1 rounded-md bg-zinc-900 border border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06] transition cursor-pointer"
               title="Close Live Subtitles (Reopen anytime from Dashboard or Tray)"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
             </button>
           </div>
         </div>

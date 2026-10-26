@@ -10,17 +10,23 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ level, active 
   const scaled = Math.min(Math.max(level * 40, 0), 1);
 
   return (
-    <div className="flex items-center gap-1 h-5 px-2 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/50">
+    <div className="flex items-center gap-1 h-5 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08]">
       {Array.from({ length: bars }).map((_, i) => {
         const threshold = (i + 1) / bars;
         const isLit = active && scaled >= threshold;
-        const height = active ? Math.max(4, Math.min(16, scaled * 16 * (1 - Math.abs(i - 3.5) / 5))) : 4;
+        const height = active ? Math.max(3, Math.min(14, scaled * 14 * (1 - Math.abs(i - 3.5) / 5))) : 3;
 
         return (
           <div
             key={i}
-            className={`w-1 rounded-full transition-all duration-75 ${
-              isLit ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-slate-600"
+            className={`w-0.5 rounded-full transition-all duration-75 ${
+              isLit
+                ? i >= 6
+                  ? "bg-rose-400"
+                  : i >= 4
+                  ? "bg-amber-400"
+                  : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.4)]"
+                : "bg-zinc-700/60"
             }`}
             style={{ height: `${height}px` }}
           />

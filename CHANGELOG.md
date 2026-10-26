@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced top header Start/Stop button with bold typography, high-contrast glow, and clear tooltips.
   - Added native **Start / Stop Meeting** option into the System Tray menu.
 - **Repository Public-Ready Sanitization**:
-  - Sanitized all documentation and codebase to remove external competitor references, reverse-engineering notes, and internal artifacts, preparing the project for public open-source distribution.
+  - Sanitized all documentation and codebase to remove legacy research notes, external references, and internal draft artifacts, preparing the project for public open-source distribution.
   - Reframed technical insights in `README.md` and `LESSONS_LEARNED.md` to sound architectural principles covering streaming cadence, VAD segmentation, and multilingual MT optimization.
   - Removed redundant `docs/lessons_learned.md`.
 

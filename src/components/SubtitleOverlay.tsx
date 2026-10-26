@@ -14,6 +14,8 @@ import {
   Pencil,
   X,
   Globe,
+  Layers,
+  ExternalLink,
 } from "lucide-react";
 
 export const SubtitleOverlay: React.FC = () => {
@@ -22,12 +24,18 @@ export const SubtitleOverlay: React.FC = () => {
     latestSuggestion,
     overlayLocked,
     setOverlayLocked,
+    setOverlayVisible,
     audioLevel,
     status,
     askCopilotManual,
     transcriptionMode,
     setTranscriptionMode,
     updateSubtitle,
+    isCopilotSplit,
+    copilotVisible,
+    toggleCopilotVisible,
+    setCopilotSplit,
+    toggleCopilotSplit,
   } = useAppStore();
 
   const [showCopilot, setShowCopilot] = useState(false);
@@ -113,18 +121,28 @@ export const SubtitleOverlay: React.FC = () => {
       ref={containerRef}
       className="w-full flex flex-col font-sans bg-transparent m-0 p-0 overflow-hidden"
     >
-      {/* Floating Copilot Card Drawer */}
-      {showCopilot && (
+      {/* Floating Copilot Card Drawer (Only when docked with Subtitles) */}
+      {showCopilot && !isCopilotSplit && (
         <div
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
           className="mb-1.5 w-full transition-all duration-200"
         >
-          <CopilotCard
-            suggestion={latestSuggestion}
-            onAskManual={askCopilotManual}
-            onClose={() => setShowCopilot(false)}
-            compact
-          />
+          <div className="relative">
+            <CopilotCard
+              suggestion={latestSuggestion}
+              onAskManual={askCopilotManual}
+              onClose={() => setShowCopilot(false)}
+              compact
+            />
+            <button
+              type="button"
+              onClick={() => setCopilotSplit(true)}
+              className="absolute top-3 right-10 text-[10px] text-indigo-300 hover:text-white bg-slate-800/90 hover:bg-slate-700 px-1.5 py-0.5 rounded border border-indigo-500/40 flex items-center gap-1 cursor-pointer transition shadow-xs"
+              title="Split Copilot into independent floating box (Unhinge from Subtitles)"
+            >
+              <ExternalLink className="w-2.5 h-2.5" /> Split Box
+            </button>
+          </div>
         </div>
       )}
 
@@ -193,16 +211,48 @@ export const SubtitleOverlay: React.FC = () => {
               ))}
             </div>
 
-            {/* Copilot Drawer Toggle */}
+            {/* Split / Dock Mode Button */}
             <button
               type="button"
-              onClick={() => setShowCopilot(!showCopilot)}
+              onClick={() => toggleCopilotSplit()}
+              className={`p-1.5 rounded-lg border transition cursor-pointer flex items-center gap-1 ${
+                isCopilotSplit
+                  ? "bg-indigo-950/70 border-indigo-500/50 text-indigo-300"
+                  : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+              }`}
+              title={
+                isCopilotSplit
+                  ? "Currently Split into 2 boxes. Click to Dock Copilot with Subtitles."
+                  : "Currently Glued/Docked in 1 box. Click to Split into 2 independent boxes."
+              }
+            >
+              {isCopilotSplit ? <Layers className="w-3.5 h-3.5" /> : <ExternalLink className="w-3.5 h-3.5" />}
+            </button>
+
+            {/* Copilot Window / Drawer Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                if (isCopilotSplit) {
+                  toggleCopilotVisible();
+                } else {
+                  setShowCopilot(!showCopilot);
+                }
+              }}
               className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                showCopilot
+                (isCopilotSplit ? copilotVisible : showCopilot)
                   ? "bg-indigo-600 text-white border-indigo-500 shadow-sm shadow-indigo-600/30"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
               }`}
-              title={showCopilot ? "Hide AI Copilot Drawer" : "Show AI Copilot Drawer"}
+              title={
+                isCopilotSplit
+                  ? copilotVisible
+                    ? "Hide AI Copilot Window"
+                    : "Show AI Copilot Window"
+                  : showCopilot
+                  ? "Hide AI Copilot Drawer"
+                  : "Show AI Copilot Drawer"
+              }
             >
               <Sparkles className="w-3.5 h-3.5" />
             </button>
@@ -219,6 +269,16 @@ export const SubtitleOverlay: React.FC = () => {
               title={overlayLocked ? "Click-through is locked (Unlock from Dashboard or Menu)" : "Lock click-through"}
             >
               {overlayLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+            </button>
+
+            {/* Close / Hide Live Subtitles */}
+            <button
+              type="button"
+              onClick={() => setOverlayVisible(false)}
+              className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+              title="Close Live Subtitles (Reopen anytime from Dashboard or Tray)"
+            >
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

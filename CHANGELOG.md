@@ -5,6 +5,24 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] - 2026-10-26
+
+### Added
+- **Decoupled Multi-Box Split Architecture (AI Copilot & Live Subtitles)**:
+  - Created a dedicated, independent floating HUD window for the AI Copilot (`copilot` window / `/copilot.html`), decoupling it completely from the Live Subtitles window.
+  - Enabled free, independent multi-screen positioning: users can now drag the Live Subtitles HUD (e.g. to bottom center) and the AI Copilot HUD (e.g. to top right or a second monitor) independently without interference.
+  - Added seamless **Split vs. Docked Layout Switcher**:
+    - **Split Mode (Default / 2 Boxes)**: Live Subtitles and AI Copilot exist as two separate floating, draggable windows.
+    - **Docked Mode (1 Box)**: Glues the Copilot drawer into the Subtitles HUD for a unified single-window experience.
+  - Added dedicated controls across all touchpoints:
+    - On Subtitles HUD: Dedicated `X` close button, quick Split/Dock button (`Layers` / `ExternalLink`), and independent Copilot toggle.
+    - On Copilot HUD: "Dock with Subtitles" button, click-through lock, and close buttons.
+    - In Dashboard: "HUD Layout" switcher (`[Split (2 Boxes) | Docked (1 Box)]`) and independent toggles for Subtitles and Copilot with independent click-through locks.
+    - In System Tray: "Toggle Live Subtitles" and "Toggle AI Copilot Window" options.
+  - Configured dynamic height tracking with `ResizeObserver` calling `resize_copilot(height)` to ensure zero dead transparent zones.
+- **Added Explicit Close Button on Live Subtitles HUD**:
+  - Added dedicated `X` close button to the top control bar of the Live Subtitles floating HUD, allowing single-click dismissal without needing to open the Dashboard or System Tray.
+
 ## [0.1.7] - 2026-10-26
 
 ### Added

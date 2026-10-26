@@ -119,3 +119,24 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   Removed CSS `select-none` from subtitle text blocks and enabled `select-text cursor-text`. Added inline edit inputs and quick copy actions on both the floating HUD and main window. Edits update the local store and invoke `update_transcript` in Rust to mutate SQLite records and broadcast `subtitle:updated` via IPC.
 - **Visual Keyword Grounding (`HighlightText`)**:
   Implemented regex and markdown concept extraction wrapping architectural terms (e.g., `**Expand and Contract**`, `**Database-per-Service**`, `**Zero Downtime**`) into high-contrast highlighted badges and tag pills, enabling instant sub-second recognition during live speech.
+
+---
+
+## 9. Multi-Window Spatial Decoupling: Split vs. Docked Floating HUD Architecture
+
+### Observation
+- **Spatial Coupling Constraints**:
+  Packaging multiple distinct real-time tools (Live Subtitles HUD and AI Question Copilot) inside a single Webview window bounds them to a shared screen region. During high-stakes meetings and interviews, users have distinct gaze patterns:
+  1. Live Subtitles must sit immediately below the active speaker's video tile or presentation slide (typically center bottom or top center).
+  2. The AI Copilot card needs to sit closer to the user's web camera, notes panel, or secondary monitor (e.g. top right or right sidebar) so glance movement appears natural without looking away from the camera.
+- If both tools are "glued" into a single native window, moving one forcibly drags the other, causing screen clutter and awkward positioning.
+
+### Solution
+- **Dedicated Independent Webview Window (`copilot`)**:
+  Registered an independent transparent borderless window (`label: "copilot"`, `url: "/copilot.html"`) in `tauri.conf.json` and `vite.config.ts`.
+- **Dynamic Split / Dock State Synchronization**:
+  Added `is_copilot_split` to `AppState` and synchronized it via Tauri IPC (`copilot:split_changed`).
+  - **In Split Mode (Default)**: The Subtitles HUD only displays real-time speech, hugging a compact ~60-110px height. The AI Copilot floats as an independent, fully draggable window with its own `ResizeObserver`, draggable header, mode switcher, and lock controls.
+  - **In Docked Mode**: The Copilot drawer embeds directly into the Subtitles HUD for users with limited screen real estate or single-monitor laptop setups.
+- **Bi-Directional Spatial Controls**:
+  Users can seamlessly switch between Split and Docked with a single click from the Subtitles HUD (`Layers`), the Copilot Window (`Dock with Subtitles`), the Dashboard sidebar, or the System Tray. Auto-revelation logic in `commands.rs` dynamically shows whichever window layout the user has selected upon question arrival.

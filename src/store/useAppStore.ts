@@ -29,6 +29,9 @@ interface AppState {
   audioLevel: number;
   overlayLocked: boolean;
   overlayVisible: boolean;
+  copilotVisible: boolean;
+  copilotLocked: boolean;
+  isCopilotSplit: boolean;
   transcriptionMode: "bilingual" | "single";
   copilotMode: "bilingual" | "single";
 
@@ -46,6 +49,11 @@ interface AppState {
   setOverlayLocked: (locked: boolean) => Promise<void>;
   setOverlayVisible: (visible: boolean) => Promise<void>;
   toggleOverlayVisible: () => Promise<void>;
+  setCopilotVisible: (visible: boolean) => Promise<void>;
+  toggleCopilotVisible: () => Promise<void>;
+  setCopilotLocked: (locked: boolean) => Promise<void>;
+  setCopilotSplit: (split: boolean) => Promise<void>;
+  toggleCopilotSplit: () => Promise<void>;
   loadProfiles: () => Promise<void>;
   saveProfile: (profile: KnowledgeProfile) => Promise<void>;
   setActiveProfile: (id: string) => Promise<void>;
@@ -81,17 +89,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   audioLevel: 0,
   overlayLocked: false,
   overlayVisible: false,
+  copilotVisible: false,
+  copilotLocked: false,
+  isCopilotSplit: true,
   transcriptionMode: "bilingual",
   copilotMode: "bilingual",
 
   init: async () => {
     try {
-      const [sources, settings, status, profiles, glossary] = await Promise.all([
+      const [sources, settings, status, profiles, glossary, isSplit] = await Promise.all([
         invoke<AudioDeviceInfo[]>("list_audio_sources").catch(() => []),
         invoke<TranslationConfig>("get_settings").catch(() => get().settings),
         invoke<AppStatus>("get_app_status").catch(() => get().status),
         invoke<KnowledgeProfile[]>("list_profiles").catch(() => []),
         invoke<GlossaryEntry[]>("list_glossary").catch(() => []),
+        invoke<boolean>("get_copilot_split_mode").catch(() => true),
       ]);
 
       const activeProfile = profiles.find((p) => p.is_active) || null;
@@ -105,6 +117,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         profiles,
         activeProfile,
         glossary,
+        isCopilotSplit: isSplit ?? true,
         srcLang: status.src_lang || "en",
         tgtLang: status.tgt_lang || "vi",
       });
@@ -133,6 +146,18 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       await listen<boolean>("overlay:visibility_changed", (event) => {
         set({ overlayVisible: event.payload });
+      });
+
+      await listen<boolean>("copilot:visibility_changed", (event) => {
+        set({ copilotVisible: event.payload });
+      });
+
+      await listen<boolean>("copilot:lock_changed", (event) => {
+        set({ copilotLocked: event.payload });
+      });
+
+      await listen<boolean>("copilot:split_changed", (event) => {
+        set({ isCopilotSplit: event.payload });
       });
 
       await listen<{ id: string; src_text: string; tgt_text: string }>("subtitle:updated", (event) => {
@@ -226,6 +251,36 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (e) {
       console.warn("Failed to toggle overlay:", e);
     }
+  },
+
+  setCopilotVisible: async (visible: boolean) => {
+    await invoke("set_copilot_visible", { visible });
+    set({ copilotVisible: visible });
+  },
+
+  toggleCopilotVisible: async () => {
+    try {
+      const isVis = await invoke<boolean>("toggle_copilot_visible");
+      set({ copilotVisible: isVis });
+    } catch (e) {
+      console.warn("Failed to toggle copilot visible:", e);
+    }
+  },
+
+  setCopilotLocked: async (locked: boolean) => {
+    await invoke("set_copilot_locked", { locked });
+    set({ copilotLocked: locked });
+  },
+
+  setCopilotSplit: async (split: boolean) => {
+    await invoke("set_copilot_split_mode", { isSplit: split });
+    set({ isCopilotSplit: split });
+  },
+
+  toggleCopilotSplit: async () => {
+    const next = !get().isCopilotSplit;
+    await invoke("set_copilot_split_mode", { isSplit: next });
+    set({ isCopilotSplit: next });
   },
 
   loadProfiles: async () => {

@@ -361,7 +361,7 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="flex h-screen bg-[#0B0C10] text-zinc-100 font-sans overflow-hidden">
       {/* Sidebar Navigation */}
-      <div className="w-60 border-r border-white/[0.06] bg-zinc-950/70 p-4 flex flex-col justify-between shrink-0 backdrop-blur-xl">
+      <div className="w-64 border-r border-white/[0.06] bg-zinc-950/70 p-4 flex flex-col justify-between shrink-0 backdrop-blur-xl">
         <div className="space-y-5">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2.5">
@@ -418,62 +418,62 @@ export const Dashboard: React.FC = () => {
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab("live")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                 activeTab === "live"
                   ? "bg-white/[0.08] text-white border border-white/[0.08]"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <Radio className="w-3.5 h-3.5" />
-              Live Meeting & Subtitles
+              <Radio className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Live Meeting & Subtitles</span>
             </button>
 
             <button
               onClick={() => setActiveTab("profiles")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                 activeTab === "profiles"
                   ? "bg-white/[0.08] text-white border border-white/[0.08]"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <FileText className="w-3.5 h-3.5" />
-              Knowledge Profiles (CV/FAQ)
+              <FileText className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Knowledge Profiles</span>
             </button>
 
             <button
               onClick={() => setActiveTab("glossary")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                 activeTab === "glossary"
                   ? "bg-white/[0.08] text-white border border-white/[0.08]"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <BookA className="w-3.5 h-3.5" />
-              Custom Glossary
+              <BookA className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Custom Glossary</span>
             </button>
 
             <button
               onClick={() => setActiveTab("history")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                 activeTab === "history"
                   ? "bg-white/[0.08] text-white border border-white/[0.08]"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <History className="w-3.5 h-3.5" />
-              Meeting History & Export
+              <History className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Meeting History & Export</span>
             </button>
 
             <button
               onClick={() => setActiveTab("settings")}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-left transition cursor-pointer ${
                 activeTab === "settings"
                   ? "bg-white/[0.08] text-white border border-white/[0.08]"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
               }`}
             >
-              <Settings className="w-3.5 h-3.5" />
-              AI Models & Settings
+              <Settings className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">AI Models & Settings</span>
             </button>
           </nav>
         </div>

@@ -31,6 +31,7 @@ import {
   Check,
   X,
   Globe,
+  Cpu,
 } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
@@ -78,6 +79,10 @@ export const Dashboard: React.FC = () => {
     saveSettings,
     transcriptionMode,
     setTranscriptionMode,
+    copilotMode,
+    setCopilotMode,
+    fontSize,
+    setFontSize,
     updateSubtitle,
   } = useAppStore();
 
@@ -133,6 +138,21 @@ export const Dashboard: React.FC = () => {
   const [modelName, setModelName] = useState(settings.model_name);
   const [customEndpoint, setCustomEndpoint] = useState(settings.custom_endpoint || "https://api.deepseek.com/v1");
   const [customApiKey, setCustomApiKey] = useState(settings.custom_api_key || "");
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Synchronize settings from store when loaded asynchronously from SQLite
+  useEffect(() => {
+    if (settings) {
+      setProvider(settings.provider || "local");
+      setLocalEndpoint(settings.local_endpoint || "http://127.0.0.1:8080/v1");
+      setOpenaiKey(settings.openai_api_key || "");
+      setAnthropicKey(settings.anthropic_api_key || "");
+      setGeminiKey(settings.gemini_api_key || "");
+      setModelName(settings.model_name || "hy-mt2-1.8b");
+      setCustomEndpoint(settings.custom_endpoint || "https://api.deepseek.com/v1");
+      setCustomApiKey(settings.custom_api_key || "");
+    }
+  }, [settings]);
 
   // Test & Benchmark Provider state
   const [testingProvider, setTestingProvider] = useState(false);
@@ -206,7 +226,8 @@ export const Dashboard: React.FC = () => {
       custom_endpoint: customEndpoint,
       custom_api_key: customApiKey || undefined,
     });
-    alert("Settings saved successfully!");
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 4000);
   };
 
   const handleTestProvider = async () => {
@@ -1087,16 +1108,159 @@ export const Dashboard: React.FC = () => {
 
         {/* Tab 5: AI Models & Settings */}
         {activeTab === "settings" && (
-          <form onSubmit={handleSaveSettings} className="p-6 max-w-2xl space-y-4 flex-1 overflow-auto">
-            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-indigo-400" />
-              AI Model & Provider Configuration
-            </h2>
-            <p className="text-xs text-slate-400">
-              Configure your hybrid inference backend. Choose local inference via llama-server / Ollama for 100% privacy, or connect OpenAI, Anthropic, or Gemini for advanced interview QA.
-            </p>
+          <form onSubmit={handleSaveSettings} className="p-6 max-w-2xl space-y-5 flex-1 overflow-auto">
+            <div>
+              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-indigo-400" />
+                Settings & Preferences
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Configure your meeting language pairs, audio devices, overlay preferences, and hybrid AI models. All preferences persist across sessions in local SQLite.
+              </p>
+            </div>
 
+            {/* Section 1: Meeting & Language Preferences */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-100 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-indigo-400" />
+                    Meeting & Language Preferences
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Default languages, audio source, subtitle modes, and window layouts.
+                  </p>
+                </div>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">
+                  Auto-persisted
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Spoken Meeting Language (Source)
+                  </label>
+                  <select
+                    value={srcLang}
+                    onChange={(e) => setLanguages(e.target.value, tgtLang)}
+                    disabled={status.is_recording}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                  >
+                    <option value="en">English (US/UK)</option>
+                    <option value="vi">Vietnamese (Tiếng Việt)</option>
+                    <option value="ja">Japanese (日本語)</option>
+                    <option value="zh">Chinese (中文)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="es">Spanish (Español)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Subtitles & Copilot Translation (Target)
+                  </label>
+                  <select
+                    value={tgtLang}
+                    onChange={(e) => setLanguages(srcLang, e.target.value)}
+                    disabled={status.is_recording}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                  >
+                    <option value="vi">Vietnamese (Tiếng Việt)</option>
+                    <option value="en">English (US/UK)</option>
+                    <option value="ja">Japanese (日本語)</option>
+                    <option value="zh">Chinese (中文)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="es">Spanish (Español)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Default Audio Input Device
+                </label>
+                <select
+                  value={selectedAudioSource}
+                  onChange={(e) => setSelectedAudioSource(e.target.value)}
+                  disabled={status.is_recording}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none"
+                >
+                  {audioSources.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} {s.is_default ? "(System Default)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-800/60">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                    Live Subtitles Mode
+                  </label>
+                  <select
+                    value={transcriptionMode}
+                    onChange={(e) => setTranscriptionMode(e.target.value as any)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                  >
+                    <option value="bilingual">Bilingual (Both)</option>
+                    <option value="single">Single (Trans only)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                    AI Copilot Output Mode
+                  </label>
+                  <select
+                    value={copilotMode}
+                    onChange={(e) => setCopilotMode(e.target.value as any)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                  >
+                    <option value="bilingual">Bilingual Answers</option>
+                    <option value="single">Single Language</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                    HUD Box Layout
+                  </label>
+                  <select
+                    value={isCopilotSplit ? "split" : "docked"}
+                    onChange={(e) => setCopilotSplit(e.target.value === "split")}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                  >
+                    <option value="split">Split (2 Boxes)</option>
+                    <option value="docked">Docked (1 Box)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: AI Model & Provider Configuration */}
             <div className="space-y-4 bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-100 flex items-center gap-2">
+                    <Cpu className="w-4 h-4 text-indigo-400" />
+                    AI Model & Provider Configuration
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Configure your hybrid inference backend (Local, OpenAI, OpenAI-Compatible, Claude, Gemini).
+                  </p>
+                </div>
+                {saveSuccess && (
+                  <span className="text-[11px] text-emerald-400 bg-emerald-950/70 border border-emerald-500/40 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1.5 animate-bounce">
+                    <CheckCircle className="w-3.5 h-3.5" /> Saved & Active!
+                  </span>
+                )}
+              </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">Active AI Provider</label>
                 <select

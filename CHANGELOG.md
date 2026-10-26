@@ -5,6 +5,15 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2026-10-26
+
+### Fixed & Enhanced
+- **Persistent Settings & Preferences (SQLite Store & React State Sync)**:
+  - **Fixed Settings Form Blank on Re-open**: Resolved race condition where `Dashboard.tsx` form states captured default empty values on mount before `loadInitialData()` resolved asynchronously. Added synchronization `useEffect` so AI model provider, API keys, base URLs, and model identifiers immediately populate with saved database credentials.
+  - **Full AppPreferences Persistence**: Added `AppPreferences` data contract in Rust backend and frontend store, persisting meeting language pairs (`src_lang`, `tgt_lang`), default audio input device, subtitles mode (`bilingual` / `single`), copilot mode, HUD box layout (`split` / `docked`), and font size across sessions in SQLite `app_settings`.
+  - **Cold-Start Engine Hydration in Rust**: Updated `AppState::new(db)` in `src-tauri/src/state.rs` to hydrate `TranslationEngine`, `CopilotSuggester`, active languages, and window layout mode from SQLite upon application launch, rather than falling back to default localhost configs.
+  - **Unified Settings Tab UI**: Added a dedicated **Meeting & Language Preferences** section at the top of the **Settings** tab with language selectors, audio device selection, display modes, and HUD layout options. Replaced intrusive `alert()` with a smooth "Saved & Active" badge.
+
 ## [0.1.8] - 2026-10-26
 
 ### Added

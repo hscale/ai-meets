@@ -416,6 +416,22 @@ pub async fn set_copilot_locked(app: AppHandle, state: State<'_, AppState>, lock
 #[tauri::command]
 pub async fn set_copilot_split_mode(app: AppHandle, state: State<'_, AppState>, is_split: bool) -> Result<(), String> {
     *state.is_copilot_split.lock().await = is_split;
+    // Persist to app_preferences
+    if let Ok(Some(json_str)) = state.db.get_setting("app_preferences") {
+        if let Ok(mut prefs) = serde_json::from_str::<AppPreferences>(&json_str) {
+            prefs.is_copilot_split = is_split;
+            if let Ok(updated_str) = serde_json::to_string(&prefs) {
+                let _ = state.db.set_setting("app_preferences", &updated_str);
+            }
+        }
+    } else {
+        let mut prefs = AppPreferences::default();
+        prefs.is_copilot_split = is_split;
+        if let Ok(updated_str) = serde_json::to_string(&prefs) {
+            let _ = state.db.set_setting("app_preferences", &updated_str);
+        }
+    }
+
     let _ = app.emit("copilot:split_changed", is_split);
     if is_split {
         if let Some(window) = app.get_webview_window("copilot") {
@@ -626,6 +642,66 @@ pub async fn update_settings(state: State<'_, AppState>, settings: TranslationCo
 
     state.translation_engine.write().await.update_config(settings.clone());
     state.copilot_suggester.write().await.update_config(settings);
+    Ok(())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppPreferences {
+    pub src_lang: String,
+    pub tgt_lang: String,
+    pub audio_source: Option<String>,
+    pub transcription_mode: String,
+    pub copilot_mode: String,
+    pub font_size: String,
+    pub is_copilot_split: bool,
+}
+
+impl Default for AppPreferences {
+    fn default() -> Self {
+        Self {
+            src_lang: "en".to_string(),
+            tgt_lang: "vi".to_string(),
+            audio_source: None,
+            transcription_mode: "bilingual".to_string(),
+            copilot_mode: "bilingual".to_string(),
+            font_size: "md".to_string(),
+            is_copilot_split: true,
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn get_app_preferences(state: State<'_, AppState>) -> Result<AppPreferences, String> {
+    if let Ok(Some(json_str)) = state.db.get_setting("app_preferences") {
+        if let Ok(prefs) = serde_json::from_str::<AppPreferences>(&json_str) {
+            return Ok(prefs);
+        }
+    }
+    let src_lang = state.active_src_lang.lock().await.clone();
+    let tgt_lang = state.active_tgt_lang.lock().await.clone();
+    let is_split = *state.is_copilot_split.lock().await;
+    Ok(AppPreferences {
+        src_lang,
+        tgt_lang,
+        audio_source: None,
+        transcription_mode: "bilingual".to_string(),
+        copilot_mode: "bilingual".to_string(),
+        font_size: "md".to_string(),
+        is_copilot_split: is_split,
+    })
+}
+
+#[tauri::command]
+pub async fn update_app_preferences(
+    state: State<'_, AppState>,
+    preferences: AppPreferences,
+) -> Result<(), String> {
+    let json_str = serde_json::to_string(&preferences).map_err(|e| e.to_string())?;
+    state.db.set_setting("app_preferences", &json_str).map_err(|e| e.to_string())?;
+
+    *state.active_src_lang.lock().await = preferences.src_lang.clone();
+    *state.active_tgt_lang.lock().await = preferences.tgt_lang.clone();
+    *state.is_copilot_split.lock().await = preferences.is_copilot_split;
     Ok(())
 }
 

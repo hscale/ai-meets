@@ -92,3 +92,13 @@ export interface ProviderTestResult {
   success: boolean;
   error?: string;
 }
+
+export interface AppPreferences {
+  src_lang: string;
+  tgt_lang: string;
+  audio_source?: string | null;
+  transcription_mode: "bilingual" | "single";
+  copilot_mode: "bilingual" | "single";
+  font_size: "sm" | "md" | "lg";
+  is_copilot_split: boolean;
+}

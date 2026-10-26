@@ -140,3 +140,24 @@ Sending every transcript turn to an LLM to determine if an answer is needed intr
   - **In Docked Mode**: The Copilot drawer embeds directly into the Subtitles HUD for users with limited screen real estate or single-monitor laptop setups.
 - **Bi-Directional Spatial Controls**:
   Users can seamlessly switch between Split and Docked with a single click from the Subtitles HUD (`Layers`), the Copilot Window (`Dock with Subtitles`), the Dashboard sidebar, or the System Tray. Auto-revelation logic in `commands.rs` dynamically shows whichever window layout the user has selected upon question arrival.
+
+---
+
+## 10. Asynchronous Database Hydration & React State Synchronization
+
+### Observation
+- **Async Initialization vs. Mount Race Condition**:
+  When a desktop app starts, the frontend root mounts synchronously with default fallback states (e.g., `provider = "local"`, empty API keys, default languages). Meanwhile, the backend database queries (`get_settings`, `get_app_preferences`) execute asynchronously over Tauri IPC.
+  If the React components initialize form fields via `useState(settings.provider)` or `useState(settings.openai_api_key || "")`, those states capture the initial blank values at mount time. Because `useState` initializers do not re-run on subsequent re-renders, the form fields remain empty even after the store successfully loads the credentials from SQLite.
+- Users perceive this as: *"all settings clear and not saved; each re-open the app all setting gone"*. Furthermore, clicking "Save" from such an un-synchronized form would inadvertently overwrite valid database records with blank values.
+- In addition, critical user preferences like meeting language pairs (`srcLang`, `tgtLang`), audio devices, and display modes were previously held only in memory, resetting back to `en -> vi` on every app reboot.
+
+### Solution
+- **Continuous Store-to-Form Synchronization**:
+  Added a synchronization `useEffect` in `Dashboard.tsx` listening to `[settings]`. As soon as the async database query completes and updates the Zustand store, the form fields populate immediately with the stored provider, endpoints, model names, and API keys.
+- **Unified `AppPreferences` Persistence Contract**:
+  Created `AppPreferences` in both Rust (`db.rs`, `commands.rs`) and TypeScript (`useAppStore.ts`), saving meeting languages, preferred audio device, transcription mode, copilot mode, font size, and window layout mode to SQLite `app_settings`.
+- **Cold-Start Rust Engine Hydration**:
+  Updated `AppState::new(db)` in `src-tauri/src/state.rs` to read `translation_config` and `app_preferences` synchronously from the database upon process boot. This ensures `TranslationEngine` and `CopilotSuggester` have valid user configurations before any network calls or audio captures begin.
+- **Centralized Settings UI**:
+  Consolidated language configuration, audio device preferences, display modes, and AI providers into a single, comprehensive **Settings & Preferences** tab with live auto-persisting indicators and save confirmation feedback.

@@ -5,6 +5,19 @@ All notable changes to **AI Meets** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-26
+
+### Enhanced & Public-Ready
+- **Prominent & Unmissable Start Meeting Controls**:
+  - Added primary **Start Meeting / Stop Meeting Action Card** directly in the left sidebar navigation right below the brand header, displaying live status indicator (`Recording...` vs `System Ready`) and active language direction (`EN → VI`).
+  - Redesigned empty dialogue state on the **Live Meeting** tab with an interactive Hero Card featuring a prominent **Start Meeting Now** button, audio device label, and language preview.
+  - Enhanced top header Start/Stop button with bold typography, high-contrast glow, and clear tooltips.
+  - Added native **Start / Stop Meeting** option into the System Tray menu.
+- **Repository Public-Ready Sanitization**:
+  - Sanitized all documentation and codebase to remove external competitor references, reverse-engineering notes, and internal artifacts, preparing the project for public open-source distribution.
+  - Reframed technical insights in `README.md` and `LESSONS_LEARNED.md` to sound architectural principles covering streaming cadence, VAD segmentation, and multilingual MT optimization.
+  - Removed redundant `docs/lessons_learned.md`.
+
 ## [0.1.9] - 2026-10-26
 
 ### Fixed & Enhanced

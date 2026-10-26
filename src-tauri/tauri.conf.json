@@ -40,6 +40,21 @@
         "shadow": false
       },
       {
+        "label": "copilot",
+        "title": "AI Meets Copilot",
+        "url": "/copilot.html",
+        "width": 640,
+        "height": 260,
+        "minWidth": 360,
+        "minHeight": 80,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "resizable": true,
+        "visible": false,
+        "shadow": false
+      },
+      {
         "label": "compose",
         "title": "Type & Translate",
         "url": "/compose.html",

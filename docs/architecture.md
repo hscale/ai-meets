@@ -85,14 +85,18 @@
   - Persists question records and suggested answers to SQLite.
 
 ### 5. Multi-Window Presentation (`src-tauri/src/overlay/` & `src-tauri/src/compose/`)
-- **Live Subtitles HUD & Interactivity**:
+- **Live Subtitles HUD & Interactivity (`overlay` window)**:
   - Floating transparent window with true non-rectangular background transparency.
   - Tightly bounded frame (760x110 default, minHeight 60) with `m-0 p-0` outer container eliminating transparent dead-zones that intercept mouse clicks.
-  - Native dynamic height resizing (`commands::resize_overlay` + `ResizeObserver`) synchronizing physical window height with visual card height when the Copilot drawer expands (~230px) or collapses (~110px).
+  - Native dynamic height resizing (`commands::resize_overlay` + `ResizeObserver`) synchronizing physical window height with visual card height.
   - Single/Bilingual mode toggle (`[BI | SINGLE]`) controlling dual-language vs single translation display.
   - Selectable text (`select-text cursor-text`), quick one-click copy, and in-place inline editing with instant SQLite persistence (`commands::update_transcript`).
-  - Applies CSS glassmorphism (`backdrop-filter: blur()`, `rounded-2xl`, translucent borders) scoped directly to the subtitle card and copilot drawer.
-  - Single-click toggle from Dashboard or Tray menu (`toggle_overlay_visible`) and click-through lock toggle (`set_ignore_cursor_events`).
+  - Split/Dock toggle button allowing instant detachment into independent floating boxes.
+- **Independent AI Copilot HUD (`copilot` window)**:
+  - Dedicated floating transparent window (`/copilot.html`, 640x260 default) unhinged from Subtitles.
+  - Allows completely independent positioning on screen or secondary monitors (e.g. adjacent to camera or notes panel).
+  - Features draggable header, bilingual/single mode switcher, keyword highlight badges, "Dock with Subtitles" button, click-through lock, and dynamic height resizing (`commands::resize_copilot`).
+  - Auto-reveals upon question detection when running in Split mode.
 - **Type & Translate (Compose)**:
   - Global hotkey (`F2`) triggers a floating quick translation palette.
   - Auto-paste mechanism simulating platform clipboard copy and synthetic paste keystroke (`Cmd+V` / `Ctrl+V`).

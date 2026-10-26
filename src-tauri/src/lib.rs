@@ -32,9 +32,12 @@ pub fn run() {
             let state = AppState::new(db);
             app.manage(state);
 
-            // Configure overlay window
+            // Configure overlay and copilot windows
             if let Some(overlay_win) = app.get_webview_window("overlay") {
                 OverlayManager::setup_overlay_window(&overlay_win);
+            }
+            if let Some(copilot_win) = app.get_webview_window("copilot") {
+                OverlayManager::setup_overlay_window(&copilot_win);
             }
 
             // Setup System Tray Menu
@@ -55,6 +58,12 @@ pub fn run() {
             commands::toggle_overlay_visible,
             commands::resize_overlay,
             commands::set_overlay_locked,
+            commands::set_copilot_visible,
+            commands::toggle_copilot_visible,
+            commands::resize_copilot,
+            commands::set_copilot_locked,
+            commands::set_copilot_split_mode,
+            commands::get_copilot_split_mode,
             commands::toggle_compose,
             commands::compose_translate,
             commands::compose_submit,
@@ -81,7 +90,8 @@ pub fn run() {
 
 fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let toggle_overlay_item = MenuItem::with_id(app, "toggle_overlay", "Toggle Live Subtitles", true, None::<&str>)?;
-    let toggle_lock_item = MenuItem::with_id(app, "toggle_lock", "Lock Subtitles (Click-Through)", true, None::<&str>)?;
+    let toggle_copilot_item = MenuItem::with_id(app, "toggle_copilot", "Toggle AI Copilot Window", true, None::<&str>)?;
+    let toggle_lock_item = MenuItem::with_id(app, "toggle_lock", "Lock Click-Through", true, None::<&str>)?;
     let compose_item = MenuItem::with_id(app, "compose", "Type & Translate (F2)", true, None::<&str>)?;
     let open_main_item = MenuItem::with_id(app, "open_main", "Open Dashboard", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "quit", "Quit AI Meets", true, None::<&str>)?;
@@ -91,6 +101,7 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         &[
             &open_main_item,
             &toggle_overlay_item,
+            &toggle_copilot_item,
             &toggle_lock_item,
             &compose_item,
             &quit_item,
@@ -113,6 +124,12 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     let _ = OverlayManager::set_visible(app, !is_vis);
                 }
             }
+            "toggle_copilot" => {
+                if let Some(win) = app.get_webview_window("copilot") {
+                    let is_vis = win.is_visible().unwrap_or(false);
+                    let _ = OverlayManager::set_copilot_visible(app, !is_vis);
+                }
+            }
             "toggle_lock" => {
                 let app_handle = app.clone();
                 tauri::async_runtime::spawn(async move {
@@ -122,6 +139,7 @@ fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     let locked = *lock_guard;
                     let _ = app_handle.emit("overlay:lock_changed", locked);
                     let _ = OverlayManager::set_click_through(&app_handle, locked);
+                    let _ = OverlayManager::set_copilot_click_through(&app_handle, locked);
                 });
             }
             "compose" => {

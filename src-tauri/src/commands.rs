@@ -223,6 +223,10 @@ pub async fn process_speech_chunk(
             };
 
             let _ = app_handle.emit("copilot:suggestion", &suggestion);
+            if let Some(copilot_win) = app_handle.get_webview_window("copilot") {
+                let _ = copilot_win.show();
+                let _ = app_handle.emit("copilot:visibility_changed", true);
+            }
 
             let transcript_rec = TranscriptRecord {
                 id: q_id,
@@ -292,6 +296,10 @@ pub async fn ask_copilot_manual(
     };
 
     let _ = app.emit("copilot:suggestion", &suggestion);
+    if let Some(copilot_win) = app.get_webview_window("copilot") {
+        let _ = copilot_win.show();
+        let _ = app.emit("copilot:visibility_changed", true);
+    }
     Ok(suggestion)
 }
 
@@ -353,6 +361,80 @@ pub async fn set_overlay_locked(app: AppHandle, state: State<'_, AppState>, lock
     *state.is_overlay_locked.lock().await = locked;
     let _ = app.emit("overlay:lock_changed", locked);
     OverlayManager::set_click_through(&app, locked).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn set_copilot_visible(app: AppHandle, visible: bool) -> Result<(), String> {
+    if visible {
+        let _ = app.emit("copilot:visibility_changed", true);
+    } else {
+        let _ = app.emit("copilot:visibility_changed", false);
+    }
+    OverlayManager::set_copilot_visible(&app, visible).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn toggle_copilot_visible(app: AppHandle) -> Result<bool, String> {
+    if let Some(window) = app.get_webview_window("copilot") {
+        let is_vis = window.is_visible().unwrap_or(false);
+        if is_vis {
+            window.hide().map_err(|e| e.to_string())?;
+            let _ = app.emit("copilot:visibility_changed", false);
+            Ok(false)
+        } else {
+            window.show().map_err(|e| e.to_string())?;
+            window.set_focus().map_err(|e| e.to_string())?;
+            let _ = app.emit("copilot:visibility_changed", true);
+            Ok(true)
+        }
+    } else {
+        Err("Copilot window not found".to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn resize_copilot(app: AppHandle, width: Option<f64>, height: f64) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("copilot") {
+        let current_size = window.inner_size().map_err(|e| e.to_string())?;
+        let scale = window.scale_factor().unwrap_or(1.0);
+        let target_width = width.unwrap_or((current_size.width as f64) / scale);
+        let safe_height = height.max(60.0);
+        window
+            .set_size(tauri::LogicalSize::new(target_width, safe_height))
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn set_copilot_locked(app: AppHandle, state: State<'_, AppState>, locked: bool) -> Result<(), String> {
+    *state.is_copilot_locked.lock().await = locked;
+    let _ = app.emit("copilot:lock_changed", locked);
+    OverlayManager::set_copilot_click_through(&app, locked).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn set_copilot_split_mode(app: AppHandle, state: State<'_, AppState>, is_split: bool) -> Result<(), String> {
+    *state.is_copilot_split.lock().await = is_split;
+    let _ = app.emit("copilot:split_changed", is_split);
+    if is_split {
+        if let Some(window) = app.get_webview_window("copilot") {
+            let _ = window.show();
+            let _ = window.set_focus();
+            let _ = app.emit("copilot:visibility_changed", true);
+        }
+    } else {
+        if let Some(window) = app.get_webview_window("copilot") {
+            let _ = window.hide();
+            let _ = app.emit("copilot:visibility_changed", false);
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_copilot_split_mode(state: State<'_, AppState>) -> Result<bool, String> {
+    Ok(*state.is_copilot_split.lock().await)
 }
 
 #[tauri::command]

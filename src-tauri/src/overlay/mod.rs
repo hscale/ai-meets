@@ -32,4 +32,25 @@ impl OverlayManager {
         }
         Ok(())
     }
+
+    /// Toggles click-through (ignore cursor events) on the copilot window
+    pub fn set_copilot_click_through(app: &AppHandle, locked: bool) -> anyhow::Result<()> {
+        if let Some(window) = app.get_webview_window("copilot") {
+            window.set_ignore_cursor_events(locked)?;
+        }
+        Ok(())
+    }
+
+    /// Toggles copilot window visibility
+    pub fn set_copilot_visible(app: &AppHandle, visible: bool) -> anyhow::Result<()> {
+        if let Some(window) = app.get_webview_window("copilot") {
+            if visible {
+                window.show()?;
+                window.set_focus()?;
+            } else {
+                window.hide()?;
+            }
+        }
+        Ok(())
+    }
 }
